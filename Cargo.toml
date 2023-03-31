@@ -1,0 +1,19 @@
+[package]
+name = "hyper-psx"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[profile.dev]
+opt-level = 1
+
+[profile.profiling]
+inherits = "release"
+debug = true
+
+[profile.production]
+inherits = "release"
+codegen-units = 1
+strip = true
+lto = true
