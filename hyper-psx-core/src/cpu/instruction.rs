@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+use super::register_index::RegisterIndex;
+
 /// An instruction wrapper
 #[derive(Clone, Copy, Debug)]
 pub(super) struct Instruction(pub(super) u32);
@@ -21,16 +23,16 @@ impl Instruction {
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
-    pub(super) fn rs(&self) -> u8 {
-        ((self.0 >> 21) & 0x1f) as u8
+    pub(super) fn rs(&self) -> RegisterIndex {
+        RegisterIndex(((self.0 >> 21) & 0x1f) as u8)
     }
 
     /// Returns the 5-bit target (source/destination) or branch condition (20-16)
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
-    pub(super) fn rt(&self) -> u8 {
-        ((self.0 >> 16) & 0x1f) as u8
+    pub(super) fn rt(&self) -> RegisterIndex {
+        RegisterIndex(((self.0 >> 16) & 0x1f) as u8)
     }
 
     /// Returns the 16-bit immediate, branch displacement or address displacement (15-0)
@@ -53,8 +55,8 @@ impl Instruction {
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
-    pub(super) fn rd(&self) -> u8 {
-        ((self.0 >> 11) & 0x1f) as u8
+    pub(super) fn rd(&self) -> RegisterIndex {
+        RegisterIndex(((self.0 >> 11) & 0x1f) as u8)
     }
 
     /// Returns the 5-bit shift amount (10-6)

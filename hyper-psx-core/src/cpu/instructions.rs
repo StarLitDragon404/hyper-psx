@@ -18,6 +18,8 @@ impl Cpu {
         let rt = instruction.rt();
         let imm = instruction.imm();
 
+        log::trace!("LUI {}, {:#06x}", rt, imm);
+
         let result = (imm as u32) << 16;
 
         self.set_register(rt, result);

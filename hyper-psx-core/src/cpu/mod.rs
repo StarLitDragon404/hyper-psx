@@ -6,8 +6,11 @@
 
 mod instruction;
 mod instructions;
+mod register_index;
 
 use crate::{bus::Bus, cpu::instruction::Instruction};
+
+use self::register_index::RegisterIndex;
 
 /// The CPU component
 #[derive(Clone, Debug)]
@@ -66,7 +69,7 @@ impl Cpu {
     ///
     /// * `register_index`: The register to be set
     /// * `value`: The value for the regsiter
-    fn set_register(&mut self, register_index: u8, value: u32) {
-        self.registers[register_index as usize] = value;
+    fn set_register(&mut self, register_index: RegisterIndex, value: u32) {
+        self.registers[register_index.0 as usize] = value;
     }
 }
