@@ -41,7 +41,7 @@ impl Bus {
             address - 0xa0000000
         };
 
-        if short_address >= 0x1f801000 && short_address < 0x1f801000 + 32 {
+        if short_address >= 0x1f801000 && short_address < 0x1f801024 {
             let offset = short_address - 0x1f801000;
             log::warn!(
                 "Unhandled write to Memory Control 1: {:#010x} ({:#x})",
@@ -51,10 +51,10 @@ impl Bus {
             return;
         }
 
-        if short_address >= 0x1f801060 && short_address < 0x1f801060 + 16 {
+        if short_address >= 0x1f801060 && short_address < 0x1f801064 {
             let offset = short_address - 0x1f801060;
             log::warn!(
-                "Unhandled write to Memory Control byte_2: {:#010x} ({:#x})",
+                "Unhandled write to Memory Control 2: {:#010x} ({:#x})",
                 address,
                 offset
             );
