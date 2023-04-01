@@ -85,25 +85,10 @@ impl Bios {
 }
 
 impl Memory for Bios {
-    /// Writes a u8 to a specific address
-    ///
-    /// # Arguments:
-    ///
-    /// * `offset`: The relative address offset
-    /// * `value`: The value to be written
-    ///
-    /// # Notes:
-    ///
-    /// This function shouldn't be used, because the BIOS is read-only
     fn write_u8(&mut self, offset: u32, _value: u8) {
         assert!((offset as usize) < self.data.len());
     }
 
-    /// Reads a u8 from a specific address
-    ///
-    /// # Arguments:
-    ///
-    /// * `offset`: The relative address offset
     fn read_u8(&self, offset: u32) -> u8 {
         assert!((offset as usize) < self.data.len());
 
