@@ -7,7 +7,11 @@
 use crate::cpu::{instruction::Instruction, Cpu};
 
 impl Cpu {
-    /// LUI - Load Upper Immediate (0b001111)
+    /// Opcode LUI - Load Upper Immediate (0b001111)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=248>
     pub(super) fn op_lui(&mut self, instruction: Instruction) {

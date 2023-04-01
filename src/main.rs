@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+//! A fast and reliable PSX Emulator written in pure Rust!
+
 mod logger;
 
 use hyper_psx_core::Psx;

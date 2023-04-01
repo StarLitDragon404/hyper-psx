@@ -13,6 +13,11 @@ use fern::{
 use log::LevelFilter;
 use std::io;
 
+/// Initializes the global logger
+///
+/// # Arguments:
+///
+/// * `verbosity`: The verbosity the logger should operate on
 pub(crate) fn init(verbosity: usize) -> Result<()> {
     let levels = ColoredLevelConfig::new()
         .error(Color::Red)
