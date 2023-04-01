@@ -68,6 +68,7 @@ impl Cpu {
         match instruction.op() {
             0b000000 => match instruction.funct() {
                 0b000000 => self.op_sll(instruction),
+                0b100101 => self.op_or(instruction),
                 _ => unimplemented!(
                     "special instruction {:#010x} with opcode {:#08b} and {:#08b}",
                     instruction.0,
