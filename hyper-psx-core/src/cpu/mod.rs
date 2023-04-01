@@ -8,10 +8,12 @@ mod extension;
 mod instruction;
 mod instructions;
 mod register_index;
+mod special;
 
-use crate::{bus::Bus, cpu::instruction::Instruction};
-
-use self::register_index::RegisterIndex;
+use crate::{
+    bus::Bus,
+    cpu::{instruction::Instruction, register_index::RegisterIndex},
+};
 
 /// The CPU component
 #[derive(Clone, Debug)]
@@ -55,6 +57,15 @@ impl Cpu {
     /// * `instruction`: The instruction to be executed
     fn execute(&mut self, instruction: Instruction) {
         match instruction.op() {
+            0b000000 => match instruction.funct() {
+                0b000000 => self.op_sll(instruction),
+                _ => unimplemented!(
+                    "special instruction {:#010x} with opcode {:#08b} and {:#08b}",
+                    instruction.0,
+                    instruction.op(),
+                    instruction.funct()
+                ),
+            },
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
             0b101011 => self.op_sw(instruction),
