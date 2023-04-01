@@ -3,7 +3,16 @@ name = "hyper-psx"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [ "hyper-psx-core" ]
+
 [dependencies]
+hyper-psx-core = { path = "hyper-psx-core" }
+
+chrono = "0.4"
+color-eyre = "0.6"
+fern = { version = "0.6", features = [ "colored" ] }
+log = "0.4"
 
 [profile.dev]
 opt-level = 1

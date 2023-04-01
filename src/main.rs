@@ -4,6 +4,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-fn main() {
-    println!("Hello, world!");
+mod logger;
+
+use color_eyre::Result;
+
+fn main() -> Result<()> {
+    color_eyre::install()?;
+    logger::init(3)?;
+
+    Ok(())
 }
