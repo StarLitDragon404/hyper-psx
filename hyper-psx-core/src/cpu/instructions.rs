@@ -7,6 +7,25 @@
 use crate::cpu::{extension::ExtensionExt, instruction::Instruction, Cpu};
 
 impl Cpu {
+    /// Opcode ADDIU - Add Immediate Unsigned Word (0b001001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=221>
+    pub(super) fn op_addiu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm().sign_extend();
+
+        log::trace!("ADDIU {}, {}, {:#x}", rt, rs, imm);
+
+        let result = self.register(rs).wrapping_add(imm);
+
+        self.set_register(rt, result);
+    }
+
     /// Opcode ORI - Or Immediate (0b001101)
     ///
     /// # Arguments:

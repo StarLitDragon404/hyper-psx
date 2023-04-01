@@ -51,6 +51,16 @@ impl Bus {
             return;
         }
 
+        if short_address >= 0x1f801060 && short_address < 0x1f801060 + 16 {
+            let offset = short_address - 0x1f801060;
+            log::warn!(
+                "Unhandled write to Memory Control byte_2: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         panic!("access write violation at address: {:#010x}", address);
     }
 

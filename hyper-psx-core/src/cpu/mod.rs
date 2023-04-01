@@ -66,6 +66,7 @@ impl Cpu {
                     instruction.funct()
                 ),
             },
+            0b001001 => self.op_addiu(instruction),
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
             0b101011 => self.op_sw(instruction),
