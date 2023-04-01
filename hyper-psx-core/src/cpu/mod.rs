@@ -54,6 +54,7 @@ impl Cpu {
     /// * `instruction`: The instruction to be executed
     fn execute(&mut self, instruction: Instruction) {
         match instruction.op() {
+            0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
             _ => unimplemented!(
                 "instruction {:#010x} with opcode {:#08b}",
@@ -70,6 +71,17 @@ impl Cpu {
     /// * `register_index`: The register to be set
     /// * `value`: The value for the regsiter
     fn set_register(&mut self, register_index: RegisterIndex, value: u32) {
+        assert!(register_index.0 < 32);
         self.registers[register_index.0 as usize] = value;
+    }
+
+    /// Gets a value from a register
+    ///
+    /// # Arguments:
+    ///
+    /// * `register_index`: The register to be read from
+    fn register(&mut self, register_index: RegisterIndex) -> u32 {
+        assert!(register_index.0 < 32);
+        self.registers[register_index.0 as usize]
     }
 }
