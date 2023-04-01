@@ -28,15 +28,78 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
-    pub(crate) fn read_u8(&self, address: u32) -> u8 {
-        let short_address = address & 0x0fffffff;
+    pub(crate) fn write_u8(&mut self, address: u32, value: u8) {
+        let short_address = if address < 0x80000000 {
+            address
+        } else if address < 0xa0000000 {
+            address - 0x80000000
+        } else {
+            address - 0xa0000000
+        };
 
-        if short_address >= 0x0fc00000 && short_address < 0x0fc00000 + (512 * 1024) {
-            let offset = short_address - 0x0fc00000;
+        if short_address >= 0x1f801000 && short_address < 0x1f801000 + 32 {
+            let offset = short_address - 0x1f801000;
+            log::warn!(
+                "Unhandled write to Memory Control 1: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
+        panic!("access write violation at address: {:#010x}", address);
+    }
+
+    /// Reads an u16 from a specific address
+    ///
+    /// # Arguments:
+    ///
+    /// * `address`: The absolute address
+    pub(crate) fn write_u16(&mut self, address: u32, value: u16) {
+        let byte_0 = (value & 0xff) as u8;
+        let byte_1 = ((value >> 8) & 0xff) as u8;
+
+        self.write_u8(address + 0, byte_0);
+        self.write_u8(address + 1, byte_1);
+    }
+
+    /// Reads an u32 from a specific address
+    ///
+    /// # Arguments:
+    ///
+    /// * `address`: The absolute address
+    pub(crate) fn write_u32(&mut self, address: u32, value: u32) {
+        let byte_0 = (value & 0xff) as u8;
+        let byte_1 = ((value >> 8) & 0xff) as u8;
+        let byte_2 = ((value >> 16) & 0xff) as u8;
+        let byte_3 = ((value >> 24) & 0xff) as u8;
+
+        self.write_u8(address + 0, byte_0);
+        self.write_u8(address + 1, byte_1);
+        self.write_u8(address + 2, byte_2);
+        self.write_u8(address + 3, byte_3);
+    }
+
+    /// Reads an u8 from a specific address
+    ///
+    /// # Arguments:
+    ///
+    /// * `address`: The absolute address
+    pub(crate) fn read_u8(&self, address: u32) -> u8 {
+        let short_address = if address < 0x80000000 {
+            address
+        } else if address < 0xa0000000 {
+            address - 0x80000000
+        } else {
+            address - 0xa0000000
+        };
+
+        if short_address >= 0x1fc00000 && short_address < 0x1fc00000 + (512 * 1024) {
+            let offset = short_address - 0x1fc00000;
             return self.bios.read_u8(offset);
         }
 
-        panic!("access violation at address: {:#010x}", address);
+        panic!("access read violation at address: {:#010x}", address);
     }
 
     /// Reads an u16 from a specific address

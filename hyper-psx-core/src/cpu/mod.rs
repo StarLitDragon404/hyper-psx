@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+mod extension;
 mod instruction;
 mod instructions;
 mod register_index;
@@ -56,6 +57,7 @@ impl Cpu {
         match instruction.op() {
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
+            0b101011 => self.op_sw(instruction),
             _ => unimplemented!(
                 "instruction {:#010x} with opcode {:#08b}",
                 instruction.0,
