@@ -5,9 +5,14 @@
  */
 
 mod bios;
+mod bus;
+mod cpu;
+mod memory;
 
 use crate::bios::Bios;
+use crate::bus::Bus;
 
+use cpu::Cpu;
 use std::path::Path;
 use thiserror::Error;
 
@@ -18,12 +23,22 @@ pub enum CreationError {
 }
 
 #[derive(Clone, Debug)]
-pub struct Psx {}
+pub struct Psx {
+    cpu: Cpu,
+}
 
 impl Psx {
     pub fn new<P: AsRef<Path>>(bios_path: P) -> Result<Self, CreationError> {
-        let _bios = Bios::new(bios_path)?;
+        let bios = Bios::new(bios_path)?;
+        let bus = Bus::new(bios);
+        let cpu = Cpu::new(bus);
 
-        Ok(Self {})
+        Ok(Self { cpu })
+    }
+
+    pub fn run(&mut self) {
+        loop {
+            self.cpu.step();
+        }
     }
 }

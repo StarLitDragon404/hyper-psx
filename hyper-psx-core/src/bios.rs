@@ -11,6 +11,8 @@ use std::{
 };
 use thiserror::Error;
 
+use crate::memory::Memory;
+
 #[derive(Debug, Error)]
 pub enum CreationError {
     #[error("failed to find bios: '{0}'")]
@@ -62,5 +64,17 @@ impl Bios {
             .map_err(|error| CreationError::ReadingFailure(error, path_display))?;
 
         Ok(buffer)
+    }
+}
+
+impl Memory for Bios {
+    fn write_u8(&mut self, offset: u32, _value: u8) {
+        assert!((offset as usize) < self.data.len());
+    }
+
+    fn read_u8(&self, offset: u32) -> u8 {
+        assert!((offset as usize) < self.data.len());
+
+        self.data[offset as usize]
     }
 }

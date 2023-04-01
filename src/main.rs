@@ -19,7 +19,8 @@ fn main() -> Result<()> {
     log::info!(" |     |    |    |       |______ |    \\_     |       ______| _/   \\_");
     log::info!("");
 
-    let _psx = Psx::new("./data/SCPH1001.BIN")?;
+    let mut psx = Psx::new("./data/SCPH1001.BIN")?;
+    psx.run();
 
     Ok(())
 }
