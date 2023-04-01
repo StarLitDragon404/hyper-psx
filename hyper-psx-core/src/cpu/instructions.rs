@@ -7,6 +7,23 @@
 use crate::cpu::{extension::ExtensionExt, instruction::Instruction, Cpu};
 
 impl Cpu {
+    /// Opcode J - Jump (0b000010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=240>
+    pub(super) fn op_j(&mut self, instruction: Instruction) {
+        let target = instruction.target();
+
+        log::trace!("J {:#x}", target);
+
+        let address = target << 2 | (self.pc & 0xf0000000);
+
+        self.branch_delay_pc = Some(address);
+    }
+
     /// Opcode ADDIU - Add Immediate Unsigned Word (0b001001)
     ///
     /// # Arguments:
