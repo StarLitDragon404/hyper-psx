@@ -28,6 +28,10 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics:
+    ///
+    /// This functions panics if the address is not valid
     pub(crate) fn write_u8(&mut self, address: u32, value: u8) {
         let short_address = if address < 0x80000000 {
             address
@@ -55,7 +59,15 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 16-bits
     pub(crate) fn write_u16(&mut self, address: u32, value: u16) {
+        if address % 2 != 0 {
+            panic!("unaligned write access at {:#010x}", address);
+        }
+
         let byte_0 = (value & 0xff) as u8;
         let byte_1 = ((value >> 8) & 0xff) as u8;
 
@@ -68,7 +80,15 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 16-bits
     pub(crate) fn write_u32(&mut self, address: u32, value: u32) {
+        if address % 4 != 0 {
+            panic!("unaligned write access at {:#010x}", address);
+        }
+
         let byte_0 = (value & 0xff) as u8;
         let byte_1 = ((value >> 8) & 0xff) as u8;
         let byte_2 = ((value >> 16) & 0xff) as u8;
@@ -85,6 +105,10 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics:
+    ///
+    /// This functions panics if the address is not valid
     pub(crate) fn read_u8(&self, address: u32) -> u8 {
         let short_address = if address < 0x80000000 {
             address
@@ -107,7 +131,15 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 16-bits
     pub(crate) fn read_u16(&self, address: u32) -> u16 {
+        if address % 2 != 0 {
+            panic!("unaligned read access at {:#010x}", address);
+        }
+
         let byte_0 = self.read_u8(address + 0) as u16;
         let byte_1 = self.read_u8(address + 1) as u16;
 
@@ -119,7 +151,15 @@ impl Bus {
     /// # Arguments:
     ///
     /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 32-bits
     pub(crate) fn read_u32(&self, address: u32) -> u32 {
+        if address % 4 != 0 {
+            panic!("unaligned read access at {:#010x}", address);
+        }
+
         let byte_0 = self.read_u8(address + 0) as u32;
         let byte_1 = self.read_u8(address + 1) as u32;
         let byte_2 = self.read_u8(address + 2) as u32;
