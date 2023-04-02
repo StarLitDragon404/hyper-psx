@@ -178,6 +178,27 @@ impl Cpu {
         self.set_register(rt, result);
     }
 
+    /// Opcode SLTI - Set On Less Than Immediate (0b001010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=273>
+    pub(super) fn op_slti(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm();
+
+        let value = imm.sign_extend();
+
+        log::trace!("SLTI {}, {}, {}", rt, rs, value as i32);
+
+        let result = (self.register(rs) as i32) < value as i32;
+
+        self.set_register(rt, result as u32);
+    }
+
     /// Opcode ANDI - And Immediate (0b001100)
     ///
     /// # Arguments:
