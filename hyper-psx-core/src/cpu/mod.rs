@@ -84,6 +84,7 @@ impl Cpu {
                 ),
             },
             0b000010 => self.op_j(instruction),
+            0b000101 => self.op_bne(instruction),
             0b001001 => self.op_addiu(instruction),
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
@@ -117,6 +118,16 @@ impl Cpu {
                 instruction.op()
             ),
         }
+    }
+
+    /// Branches to an offset
+    ///
+    /// # Arguments:
+    ///
+    /// * `offset`: The relative offset
+    fn branch(&mut self, offset: u32) {
+        let address = self.pc.wrapping_add(offset).wrapping_sub(4);
+        self.branch_delay_pc = Some(address);
     }
 
     /// Sets a register to a value

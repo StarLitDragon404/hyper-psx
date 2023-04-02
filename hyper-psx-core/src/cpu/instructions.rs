@@ -26,6 +26,25 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
+    /// Opcode BNE - Branch On Not Equal (0b000101)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=232>
+    pub(super) fn op_bne(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm().sign_extend() << 2;
+
+        log::trace!("BNE {}, {}, {}", rs, rt, offset as i32);
+
+        if self.register(rs) != self.register(rt) {
+            self.branch(offset);
+        }
+    }
+
     /// Opcode ADDIU - Add Immediate Unsigned Word (0b001001)
     ///
     /// # Arguments:
@@ -94,7 +113,7 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm().sign_extend();
 
-        log::trace!("SW {}, {:#x}({})", rt, offset, base);
+        log::trace!("SW {}, {}({})", rt, offset, base);
 
         if self.cop_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
