@@ -92,6 +92,7 @@ impl Cpu {
             0b000000 => match instruction.funct() {
                 0b000000 => self.op_sll(instruction),
                 0b001000 => self.op_jr(instruction),
+                0b001001 => self.op_jalr(instruction),
                 0b100000 => self.op_add(instruction),
                 0b100001 => self.op_addu(instruction),
                 0b100100 => self.op_and(instruction),

@@ -47,6 +47,29 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
+    /// Opcode JALR - Jump And Link Register (0b001001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=242>
+    pub(super) fn op_jalr(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rd = instruction.rd();
+
+        log::trace!("JALR {}", rs);
+
+        let address = self.register(rs);
+
+        self.set_register(rd, self.pc);
+        self.branch_delay_pc = Some(address);
+    }
+
     /// Opcode ADD - Add Word (0b100000)
     ///
     /// # Arguments:
