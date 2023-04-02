@@ -106,6 +106,7 @@ impl Cpu {
             0b000101 => self.op_bne(instruction),
             0b001000 => self.op_addi(instruction),
             0b001001 => self.op_addiu(instruction),
+            0b001100 => self.op_andi(instruction),
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
             0b010000 => match instruction.cop_op() {

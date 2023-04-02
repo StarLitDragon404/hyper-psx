@@ -117,6 +117,27 @@ impl Cpu {
         self.set_register(rt, result);
     }
 
+    /// Opcode ANDI - And Immediate (0b001100)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=224>
+    pub(super) fn op_andi(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm();
+
+        let value = imm.zero_extend();
+
+        log::trace!("ANDI {}, {}, {:#x}", rt, rs, value);
+
+        let result = self.register(rs) & value;
+
+        self.set_register(rt, result);
+    }
+
     /// Opcode ORI - Or Immediate (0b001101)
     ///
     /// # Arguments:
