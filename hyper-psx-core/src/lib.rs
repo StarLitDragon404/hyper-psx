@@ -10,11 +10,13 @@ mod bios;
 mod bus;
 mod cpu;
 mod memory;
+mod ram;
 
 use crate::bios::Bios;
 use crate::bus::Bus;
 
 use cpu::Cpu;
+use ram::Ram;
 use std::path::Path;
 use thiserror::Error;
 
@@ -45,7 +47,10 @@ impl Psx {
     /// This function will throw an error if the BIOS failed to load
     pub fn new<P: AsRef<Path>>(bios_path: P) -> Result<Self, CreationError> {
         let bios = Bios::new(bios_path)?;
-        let bus = Bus::new(bios);
+        let ram = Ram::new();
+
+        let bus = Bus::new(bios, ram);
+
         let cpu = Cpu::new(bus);
 
         Ok(Self { cpu })

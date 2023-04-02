@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::{bios::Bios, memory::Memory};
+use crate::{bios::Bios, memory::Memory, ram::Ram};
 
 /// The BUS component connecting everything
 #[derive(Clone, Debug)]
 pub(crate) struct Bus {
     /// The BIOS component
     bios: Bios,
+
+    /// The RAM component
+    ram: Ram,
 }
 
 impl Bus {
@@ -25,9 +28,10 @@ impl Bus {
     ///
     /// # Arguments:
     ///
-    /// * `bios`: The loaded BIOS
-    pub(crate) fn new(bios: Bios) -> Self {
-        Self { bios }
+    /// * `bios`: The BIOS component
+    /// * `ram`: The RAM component
+    pub(crate) fn new(bios: Bios, ram: Ram) -> Self {
+        Self { bios, ram }
     }
 
     /// Masks a virtual address to a phyiscal address
@@ -52,6 +56,12 @@ impl Bus {
     /// This functions panics if the address is not valid
     pub(crate) fn write_u8(&mut self, address: u32, value: u8) {
         let physical_adddress = Self::mask_address(address);
+
+        if physical_adddress < 0x1f000000 {
+            let offset = physical_adddress;
+            self.ram.write_u8(offset, value);
+            return;
+        }
 
         if physical_adddress >= 0x1f801000 && physical_adddress < 0x1f801024 {
             let offset = physical_adddress - 0x1f801000;
@@ -146,6 +156,11 @@ impl Bus {
     /// This functions panics if the address is not valid
     pub(crate) fn read_u8(&self, address: u32) -> u8 {
         let physical_adddress = Self::mask_address(address);
+
+        if physical_adddress < 0x1f000000 {
+            let offset = physical_adddress;
+            return self.ram.read_u8(offset);
+        }
 
         if physical_adddress >= 0x1fc00000 && physical_adddress < 0x1fc80000 + (512 * 1024) {
             let offset = physical_adddress - 0x1fc00000;
