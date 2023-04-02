@@ -37,3 +37,44 @@ impl Display for RegisterIndex {
         }
     }
 }
+
+/// A cop register wrapper
+#[derive(Clone, Copy)]
+pub(super) struct CopRegisterIndex(pub(super) u8);
+
+impl Debug for CopRegisterIndex {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        fmt.debug_tuple("CopRegisterIndex")
+            .field(&format_args!("Cop0-R{}", self.0))
+            .finish()
+    }
+}
+
+impl Display for CopRegisterIndex {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        match self.0 {
+            0 | 1 | 2 => write!(fmt, "$n/a"),
+            3 => write!(fmt, "$bpc"),
+            4 => write!(fmt, "$n/a"),
+            5 => write!(fmt, "$bda"),
+            6 => write!(fmt, "$jumpdst"),
+            7 => write!(fmt, "$dcic"),
+            8 => write!(fmt, "$badvaddr"),
+            9 => write!(fmt, "$bdam"),
+            10 => write!(fmt, "$n/a"),
+            11 => write!(fmt, "$bpcm"),
+            12 => write!(fmt, "$sr"),
+            13 => write!(fmt, "$cause"),
+            14 => write!(fmt, "$epc"),
+            15 => write!(fmt, "$prid"),
+            16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 => {
+                write!(fmt, "$garbage")
+            }
+            32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48
+            | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 => {
+                write!(fmt, "$n/a")
+            }
+            _ => unreachable!(),
+        }
+    }
+}

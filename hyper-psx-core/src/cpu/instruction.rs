@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use super::register_index::RegisterIndex;
+use super::register_index::{CopRegisterIndex, RegisterIndex};
 
 /// An instruction wrapper
 #[derive(Clone, Copy, Debug)]
@@ -17,6 +17,14 @@ impl Instruction {
     #[inline(always)]
     pub(super) fn op(&self) -> u8 {
         ((self.0 >> 26) & 0x3f) as u8
+    }
+
+    /// Returns the 5-bit cop operation code (25-21)
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
+    #[inline(always)]
+    pub(super) fn cop_op(&self) -> u8 {
+        ((self.0 >> 21) & 0x1f) as u8
     }
 
     /// Returns the 5-bit source register specifier (25-21)
@@ -49,6 +57,14 @@ impl Instruction {
     #[inline(always)]
     pub(super) fn target(&self) -> u32 {
         ((self.0 >> 0) & 0x3ffffff) as u32
+    }
+
+    /// Returns the 5-bit cop destination register specifier (15-11)
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
+    #[inline(always)]
+    pub(super) fn cop_rd(&self) -> CopRegisterIndex {
+        CopRegisterIndex(((self.0 >> 11) & 0x1f) as u8)
     }
 
     /// Returns the 5-bit destination register specifier (15-11)

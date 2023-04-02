@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{extension::ExtensionExt, instruction::Instruction, Cpu};
+use crate::cpu::{
+    extension::ExtensionExt, instruction::Instruction, register_index::CopRegisterIndex, Cpu,
+};
 
 impl Cpu {
     /// Opcode J - Jump (0b000010)
@@ -93,6 +95,11 @@ impl Cpu {
         let offset = instruction.imm().sign_extend();
 
         log::trace!("SW {}, {:#x}({})", rt, offset, base);
+
+        if self.cop_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+            log::warn!("Tried to write into memory, while cache is isolated");
+            return;
+        }
 
         let address = self.register(base).wrapping_add(offset);
         let result = self.register(rt);
