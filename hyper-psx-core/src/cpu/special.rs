@@ -7,7 +7,7 @@
 use crate::cpu::{instruction::Instruction, Cpu};
 
 impl Cpu {
-    /// Opcode SLL - Shift Word Left Logical (0b000000/0b000000)
+    /// Opcode SLL - Shift Word Left Logical (0b000000)
     ///
     /// # Arguments:
     ///
@@ -26,7 +26,7 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
-    /// Opcode OR - Or (0b000000/0b100101)
+    /// Opcode OR - Or (0b100101)
     ///
     /// # Arguments:
     ///

@@ -13,6 +13,10 @@ impl Cpu {
     ///
     /// * `instruction`: The current instruction data
     ///
+    /// # Exceptions:
+    ///
+    /// * Coprocessor unusable exception
+    ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=260>
     pub(super) fn op_mtc0(&mut self, instruction: Instruction) {
         let rt = instruction.rt();
@@ -20,6 +24,6 @@ impl Cpu {
 
         log::trace!("MTC0 {}, {}", rt, rd);
 
-        self.set_cop_register(rd, self.register(rt));
+        self.set_cop0_register(rd, self.register(rt));
     }
 }

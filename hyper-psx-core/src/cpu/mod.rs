@@ -26,7 +26,7 @@ pub(crate) struct Cpu {
     registers: [u32; 32],
 
     /// The 64 cop registers
-    cop_registers: [u32; 64],
+    cop0_registers: [u32; 64],
 
     /// The program counter
     pc: u32,
@@ -47,7 +47,7 @@ impl Cpu {
     pub(crate) fn new(bus: Bus) -> Self {
         Self {
             registers: [0x00000000; 32],
-            cop_registers: [0x00000000; 64],
+            cop0_registers: [0x00000000; 64],
             pc: 0xbfc00000,
             branch_delay_pc: None,
             bus,
@@ -57,9 +57,6 @@ impl Cpu {
     /// Steps the next instruction
     pub(crate) fn step(&mut self) {
         let instruction = Instruction(self.bus.read_u32(self.pc));
-
-        log::debug!("PC: {:#x}", self.pc);
-
         self.pc += 4;
 
         if self.branch_delay_pc.is_some() {
@@ -131,7 +128,7 @@ impl Cpu {
     ///
     /// * `offset`: The relative offset
     fn branch(&mut self, offset: u32) {
-        let address = self.pc.wrapping_add(offset).wrapping_sub(4);
+        let address = self.pc.wrapping_add(offset);
         self.branch_delay_pc = Some(address);
     }
 
@@ -162,9 +159,9 @@ impl Cpu {
     ///
     /// * `cop_register_index`: The cop register to be set
     /// * `value`: The value for the regsiter
-    fn set_cop_register(&mut self, cop_register_index: CopRegisterIndex, value: u32) {
+    fn set_cop0_register(&mut self, cop_register_index: CopRegisterIndex, value: u32) {
         assert!(cop_register_index.0 < 64);
-        self.cop_registers[cop_register_index.0 as usize] = value;
+        self.cop0_registers[cop_register_index.0 as usize] = value;
     }
 
     /// Gets a value from a cop register
@@ -172,8 +169,8 @@ impl Cpu {
     /// # Arguments:
     ///
     /// * `cop_register_index`: The cop register to be read from
-    fn cop_register(&self, cop_register_index: CopRegisterIndex) -> u32 {
+    fn cop0_register(&self, cop_register_index: CopRegisterIndex) -> u32 {
         assert!(cop_register_index.0 < 64);
-        self.cop_registers[cop_register_index.0 as usize]
+        self.cop0_registers[cop_register_index.0 as usize]
     }
 }
