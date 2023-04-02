@@ -70,4 +70,26 @@ impl Cpu {
             self.branch(address_offset);
         }
     }
+
+    /// Opcode BGEZAL - Branch On Greater Than Or Equal To Zero And Link (0b10001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=227>
+    pub(super) fn op_bgezal(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend() << 2;
+
+        log::trace!("BGEZ {}, {}", rs, address_offset as i32);
+
+        self.set_register(RegisterIndex(31), self.pc);
+
+        if (self.register(rs) as i32) >= 0 {
+            self.branch(address_offset);
+        }
+    }
 }
