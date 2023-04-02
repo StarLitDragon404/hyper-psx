@@ -112,25 +112,26 @@ impl Cpu {
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
             0b010000 => match instruction.cop_op() {
+                0b00000 => self.op_mfc0(instruction),
                 0b00100 => self.op_mtc0(instruction),
                 _ => unimplemented!(
-                    "cop0 instruction {:#010x} with opcode {:#08b}",
+                    "cop0 instruction {:#010x} with opcode {:#07b}",
                     instruction.0,
                     instruction.cop_op()
                 ),
             },
             0b010001 => unimplemented!(
-                "cop1 instruction {:#010x} with opcode {:#08b}",
+                "cop1 instruction {:#010x} with opcode {:#07b}",
                 instruction.0,
                 instruction.cop_op()
             ),
             0b010010 => unimplemented!(
-                "cop2 instruction {:#010x} with opcode {:#08b}",
+                "cop2 instruction {:#010x} with opcode {:#07b}",
                 instruction.0,
                 instruction.cop_op()
             ),
             0b010011 => unimplemented!(
-                "cop3 instruction {:#010x} with opcode {:#08b}",
+                "cop3 instruction {:#010x} with opcode {:#07b}",
                 instruction.0,
                 instruction.cop_op()
             ),
