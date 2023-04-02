@@ -66,6 +66,25 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode AND - And (0b100100)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=223>
+    pub(super) fn op_and(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        log::trace!("AND {}, {}, {}", rd, rs, rt);
+
+        let result = self.register(rs) & self.register(rt);
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode OR - Or (0b100101)
     ///
     /// # Arguments:

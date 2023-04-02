@@ -93,12 +93,12 @@ impl Cpu {
                 0b000000 => self.op_sll(instruction),
                 0b001000 => self.op_jr(instruction),
                 0b100001 => self.op_addu(instruction),
+                0b100100 => self.op_and(instruction),
                 0b100101 => self.op_or(instruction),
                 0b101011 => self.op_sltu(instruction),
                 _ => unimplemented!(
-                    "special instruction {:#010x} with opcode {:#08b} and {:#08b}",
+                    "special instruction {:#010x} with opcode {:#08b}",
                     instruction.0,
-                    instruction.op(),
                     instruction.funct()
                 ),
             },
