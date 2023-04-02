@@ -91,6 +91,7 @@ impl Cpu {
         match instruction.op() {
             0b000000 => match instruction.funct() {
                 0b000000 => self.op_sll(instruction),
+                0b100001 => self.op_addu(instruction),
                 0b100101 => self.op_or(instruction),
                 0b101011 => self.op_sltu(instruction),
                 _ => unimplemented!(

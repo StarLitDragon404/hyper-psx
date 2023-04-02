@@ -26,6 +26,25 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode ADDU - Add Unsigned Word (0b100001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=222>
+    pub(super) fn op_addu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        log::trace!("ADDU {}, {}, {}", rd, rs, rt);
+
+        let result = self.register(rt).wrapping_add(self.register(rs));
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode OR - Or (0b100101)
     ///
     /// # Arguments:
