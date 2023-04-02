@@ -5,7 +5,10 @@
  */
 
 use crate::cpu::{
-    extension::ExtensionExt, instruction::Instruction, register_index::CopRegisterIndex, Cpu,
+    extension::ExtensionExt,
+    instruction::Instruction,
+    register_index::{CopRegisterIndex, RegisterIndex},
+    Cpu,
 };
 
 impl Cpu {
@@ -23,6 +26,24 @@ impl Cpu {
 
         log::trace!("J {:#x}", address);
 
+        self.branch_delay_pc = Some(address);
+    }
+
+    /// Opcode JAL - Jump And Link (0b000011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=241>
+    pub(super) fn op_jal(&mut self, instruction: Instruction) {
+        let target = instruction.target();
+
+        let address = target << 2 | (self.pc & 0xf0000000);
+
+        log::trace!("JAL {:#x}", address);
+
+        self.set_register(RegisterIndex(31), self.pc);
         self.branch_delay_pc = Some(address);
     }
 

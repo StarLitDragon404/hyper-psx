@@ -102,6 +102,7 @@ impl Cpu {
                 ),
             },
             0b000010 => self.op_j(instruction),
+            0b000011 => self.op_jal(instruction),
             0b000101 => self.op_bne(instruction),
             0b001000 => self.op_addi(instruction),
             0b001001 => self.op_addiu(instruction),
