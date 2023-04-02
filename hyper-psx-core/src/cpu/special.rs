@@ -47,6 +47,34 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
+    /// Opcode ADD - Add Word (0b100000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * Integer overflow exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=219>
+    pub(super) fn op_add(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        let s = self.register(rs);
+        let t = self.register(rt);
+
+        log::trace!("ADD {}, {}, {}", rt, rs, rt);
+
+        let Some(result) = (s as i32).checked_add(t as i32) else {
+            panic!("Integer overflow exception");
+        };
+
+        self.set_register(rd, result as u32);
+    }
+
     /// Opcode ADDU - Add Unsigned Word (0b100001)
     ///
     /// # Arguments:

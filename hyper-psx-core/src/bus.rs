@@ -83,6 +83,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f801070..0x1f801078).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801070;
+            log::warn!(
+                "Unhandled write to Interrupt Control: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0x1f801d80..0x1f801dc0).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801d80;
             log::warn!(
