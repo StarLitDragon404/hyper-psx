@@ -26,6 +26,27 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode JR - Jump Register (0b001000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=243>
+    pub(super) fn op_jr(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+
+        log::trace!("JR {}", rs);
+
+        let address = self.register(rs);
+
+        self.branch_delay_pc = Some(address);
+    }
+
     /// Opcode ADDU - Add Unsigned Word (0b100001)
     ///
     /// # Arguments:
