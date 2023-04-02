@@ -179,6 +179,40 @@ impl Cpu {
         self.set_register(rt, result);
     }
 
+    /// Opcode LB - Load Byte (0b100000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * TLB refill exception
+    /// * TLB invalid exception
+    /// * Bus error exception
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=244>
+    pub(super) fn op_lb(&mut self, instruction: Instruction) {
+        let base = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend();
+        let address = self.register(base).wrapping_add(address_offset);
+
+        log::trace!("LB {}, {}({})", rt, address_offset as i32, base);
+
+        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+            log::warn!("Tried to read from memory, while cache is isolated");
+            return;
+        }
+
+        let result = self.bus.read_u8(address) as u32;
+
+        self.load_delay_register = Some((rt, result));
+    }
+
     /// Opcode LW - Load Word (0b100011)
     ///
     /// # Arguments:
