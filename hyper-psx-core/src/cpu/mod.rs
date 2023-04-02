@@ -25,6 +25,12 @@ pub(crate) struct Cpu {
     /// The 32 general purpose registers
     registers: [u32; 32],
 
+    /// The 32 general purpose output registers
+    out_registers: [u32; 32],
+
+    /// The load delay register
+    load_delay_register: Option<(RegisterIndex, u32)>,
+
     /// The 64 cop registers
     cop0_registers: [u32; 64],
 
@@ -47,6 +53,8 @@ impl Cpu {
     pub(crate) fn new(bus: Bus) -> Self {
         Self {
             registers: [0x00000000; 32],
+            out_registers: [0x00000000; 32],
+            load_delay_register: None,
             cop0_registers: [0x00000000; 64],
             pc: 0xbfc00000,
             branch_delay_pc: None,
@@ -60,11 +68,18 @@ impl Cpu {
         self.pc += 4;
 
         if self.branch_delay_pc.is_some() {
-            self.pc = self.branch_delay_pc.unwrap();
-            self.branch_delay_pc = None;
+            let branch_pc = self.branch_delay_pc.take().unwrap();
+            self.pc = branch_pc;
+        }
+
+        if self.load_delay_register.is_some() {
+            let load_register = self.load_delay_register.take().unwrap();
+            self.set_register(load_register.0, load_register.1);
         }
 
         self.execute(instruction);
+
+        self.registers = self.out_registers;
     }
 
     /// Executes an instruction
@@ -113,6 +128,7 @@ impl Cpu {
                 instruction.0,
                 instruction.cop_op()
             ),
+            0b100011 => self.op_lw(instruction),
             0b101011 => self.op_sw(instruction),
             _ => unimplemented!(
                 "instruction {:#010x} with opcode {:#08b}",
@@ -140,7 +156,10 @@ impl Cpu {
     /// * `value`: The value for the regsiter
     fn set_register(&mut self, register_index: RegisterIndex, value: u32) {
         assert!(register_index.0 < 32);
-        self.registers[register_index.0 as usize] = value;
+
+        if register_index.0 != 0 {
+            self.out_registers[register_index.0 as usize] = value;
+        }
     }
 
     /// Gets a value from a register

@@ -7,7 +7,7 @@
 use crate::cpu::{instruction::Instruction, Cpu};
 
 impl Cpu {
-    /// Opcode MTC0 - Move to Coprocessor (0b010000/0b00100)
+    /// Opcode MTC0 - Move to Coprocessor (0b00100)
     ///
     /// # Arguments:
     ///
