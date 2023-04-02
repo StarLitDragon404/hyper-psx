@@ -108,7 +108,7 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("ADD {}, {}, {}", rt, rs, rt);
+        log::trace!("ADD {}, {}, {}", rd, rs, rt);
 
         let Some(result) = (s as i32).checked_add(t as i32) else {
             panic!("Integer overflow exception");
