@@ -182,6 +182,16 @@ impl Bus {
             return self.ram.read_u8(offset);
         }
 
+        if (0x1f000000..0x1f800000).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f000000;
+            log::warn!(
+                "Unhandled read from Expansion Region 1: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0xff;
+        }
+
         if (0x1fc00000..0x1fc80000 + (512 * 1024)).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1fc00000;
             return self.bios.read_u8(offset);

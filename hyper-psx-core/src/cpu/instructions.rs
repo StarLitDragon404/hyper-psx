@@ -47,6 +47,27 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
+    /// Opcode BEQ - Branch On Equal (0b000100)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=225>
+    pub(super) fn op_beq(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend() << 2;
+
+        log::trace!("BEQ {}, {}, {}", rs, rt, address_offset as i32);
+
+        if self.register(rs) == self.register(rt) {
+            self.branch(address_offset);
+        }
+    }
+
     /// Opcode BNE - Branch On Not Equal (0b000101)
     ///
     /// # Arguments:
