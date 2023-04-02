@@ -63,7 +63,7 @@ impl Bus {
             return;
         }
 
-        if physical_adddress >= 0x1f801000 && physical_adddress < 0x1f801024 {
+        if (0x1f801000..0x1f801024).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801000;
             log::warn!(
                 "Unhandled write to Memory Control 1: {:#010x} ({:#x})",
@@ -73,7 +73,7 @@ impl Bus {
             return;
         }
 
-        if physical_adddress >= 0x1f801060 && physical_adddress < 0x1f801064 {
+        if (0x1f801060..0x1f801064).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801060;
             log::warn!(
                 "Unhandled write to Memory Control 2: {:#010x} ({:#x})",
@@ -83,7 +83,7 @@ impl Bus {
             return;
         }
 
-        if physical_adddress >= 0xfffe0130 && physical_adddress < 0xfffe0134 {
+        if (0xfffe0130..0xfffe0134).contains(&physical_adddress) {
             let offset = physical_adddress - 0xfffe0130;
             log::warn!(
                 "Unhandled write to Memory Control 3: {:#010x} ({:#x})",
@@ -97,27 +97,6 @@ impl Bus {
             "access write violation at address: {:#010x} ({:#010x})",
             physical_adddress, address
         );
-    }
-
-    /// Reads an u16 from a specific address
-    ///
-    /// # Arguments:
-    ///
-    /// * `address`: The absolute address
-    ///
-    /// # Panics
-    ///
-    /// This functions panics if the address is not aligned to 16-bits
-    pub(crate) fn write_u16(&mut self, address: u32, value: u16) {
-        if address % 2 != 0 {
-            panic!("unaligned write access at {:#010x}", address);
-        }
-
-        let byte_0 = (value & 0xff) as u8;
-        let byte_1 = ((value >> 8) & 0xff) as u8;
-
-        self.write_u8(address + 0, byte_0);
-        self.write_u8(address + 1, byte_1);
     }
 
     /// Reads an u32 from a specific address
@@ -139,7 +118,7 @@ impl Bus {
         let byte_2 = ((value >> 16) & 0xff) as u8;
         let byte_3 = ((value >> 24) & 0xff) as u8;
 
-        self.write_u8(address + 0, byte_0);
+        self.write_u8(address, byte_0);
         self.write_u8(address + 1, byte_1);
         self.write_u8(address + 2, byte_2);
         self.write_u8(address + 3, byte_3);
@@ -162,7 +141,7 @@ impl Bus {
             return self.ram.read_u8(offset);
         }
 
-        if physical_adddress >= 0x1fc00000 && physical_adddress < 0x1fc80000 + (512 * 1024) {
+        if (0x1fc00000..0x1fc80000 + (512 * 1024)).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1fc00000;
             return self.bios.read_u8(offset);
         }
@@ -171,26 +150,6 @@ impl Bus {
             "access read violation at address: {:#010x} ({:#010x})",
             physical_adddress, address
         );
-    }
-
-    /// Reads an u16 from a specific address
-    ///
-    /// # Arguments:
-    ///
-    /// * `address`: The absolute address
-    ///
-    /// # Panics
-    ///
-    /// This functions panics if the address is not aligned to 16-bits
-    pub(crate) fn read_u16(&self, address: u32) -> u16 {
-        if address % 2 != 0 {
-            panic!("unaligned read access at {:#010x}", address);
-        }
-
-        let byte_0 = self.read_u8(address + 0) as u16;
-        let byte_1 = self.read_u8(address + 1) as u16;
-
-        (byte_1 << 8) | (byte_0 << 0)
     }
 
     /// Reads an u32 from a specific address
@@ -207,11 +166,11 @@ impl Bus {
             panic!("unaligned read access at {:#010x}", address);
         }
 
-        let byte_0 = self.read_u8(address + 0) as u32;
+        let byte_0 = self.read_u8(address) as u32;
         let byte_1 = self.read_u8(address + 1) as u32;
         let byte_2 = self.read_u8(address + 2) as u32;
         let byte_3 = self.read_u8(address + 3) as u32;
 
-        (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | (byte_0 << 0)
+        (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0
     }
 }

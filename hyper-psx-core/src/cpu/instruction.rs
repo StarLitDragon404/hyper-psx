@@ -48,7 +48,7 @@ impl Instruction {
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
     pub(super) fn imm(&self) -> u16 {
-        ((self.0 >> 0) & 0xffff) as u16
+        (self.0 & 0xffff) as u16
     }
 
     /// Returns the 26-bit jump target address (25-0)
@@ -56,7 +56,7 @@ impl Instruction {
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
     pub(super) fn target(&self) -> u32 {
-        ((self.0 >> 0) & 0x3ffffff) as u32
+        self.0 & 0x3ffffff
     }
 
     /// Returns the 5-bit cop destination register specifier (15-11)
@@ -88,6 +88,6 @@ impl Instruction {
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
     #[inline(always)]
     pub(super) fn funct(&self) -> u8 {
-        ((self.0 >> 0) & 0x3f) as u8
+        (self.0 & 0x3f) as u8
     }
 }

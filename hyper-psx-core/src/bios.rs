@@ -49,7 +49,7 @@ impl Bios {
     pub(crate) fn new<P: AsRef<Path>>(path: P) -> Result<Self, CreationError> {
         let path_display = path.as_ref().display().to_string();
         if !path.as_ref().exists() {
-            return Err(CreationError::MissingFile(path_display.clone()));
+            return Err(CreationError::MissingFile(path_display));
         }
 
         let buffer = Self::read_file(path)?;
