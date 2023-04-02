@@ -87,7 +87,7 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!("ADDI {}, {}, {:#x}", rt, rs, value);
+        log::trace!("ADDI {}, {}, {:#x}", rt, rs, value as i32);
 
         let Some(result) = (s as i32).checked_add(imm as i32) else {
             panic!("Integer overflow exception");
@@ -110,7 +110,7 @@ impl Cpu {
 
         let value = imm.sign_extend();
 
-        log::trace!("ADDIU {}, {}, {:#x}", rt, rs, value);
+        log::trace!("ADDIU {}, {}, {:#x}", rt, rs, value as i32);
 
         let result = self.register(rs).wrapping_add(value);
 
@@ -235,7 +235,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("LW {}, {}({})", rt, offset, base);
+        log::trace!("LW {}, {}({})", rt, address_offset as i32, base);
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
@@ -270,7 +270,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SB {}, {}({})", rt, offset, base);
+        log::trace!("SB {}, {}({})", rt, address_offset as i32, base);
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
@@ -305,7 +305,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SH {}, {}({})", rt, offset, base);
+        log::trace!("SH {}, {}({})", rt, address_offset as i32, base);
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
@@ -340,7 +340,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SW {}, {}({})", rt, offset, base);
+        log::trace!("SW {}, {}({})", rt, address_offset as i32, base);
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
