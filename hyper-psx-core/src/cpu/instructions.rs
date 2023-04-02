@@ -89,6 +89,26 @@ impl Cpu {
         }
     }
 
+    /// Opcode BGTZ - Branch On Greater Than Zero (0b000111)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=228>
+    pub(super) fn op_bgtz(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend() << 2;
+
+        log::trace!("BGTZ {}, {}", rs, address_offset as i32);
+
+        if self.register(rs) > 0 {
+            self.branch(address_offset);
+        }
+    }
+
     /// Opcode ADDI - Add Immediate Word (0b001000)
     ///
     /// # Arguments:
