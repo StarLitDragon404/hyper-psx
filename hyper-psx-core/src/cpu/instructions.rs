@@ -108,9 +108,9 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!("ADDI {}, {}, {:#x}", rt, rs, value as i32);
+        log::trace!("ADDI {}, {}, {}", rt, rs, value as i32);
 
-        let Some(result) = (s as i32).checked_add(imm as i32) else {
+        let Some(result) = (s as i32).checked_add(value as i32) else {
             panic!("Integer overflow exception");
         };
 
@@ -131,7 +131,7 @@ impl Cpu {
 
         let value = imm.sign_extend();
 
-        log::trace!("ADDIU {}, {}, {:#x}", rt, rs, value as i32);
+        log::trace!("ADDIU {}, {}, {}", rt, rs, value as i32);
 
         let result = self.register(rs).wrapping_add(value);
 
