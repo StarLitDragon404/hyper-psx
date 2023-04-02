@@ -117,6 +117,25 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode SUBU - Subtract Unsigned Word (0b100011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=281>
+    pub(super) fn op_subu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        log::trace!("SUBU {}, {}, {}", rd, rs, rt);
+
+        let result = self.register(rt).wrapping_sub(self.register(rs));
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode AND - And (0b100100)
     ///
     /// # Arguments:
