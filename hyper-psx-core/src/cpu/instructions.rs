@@ -45,6 +45,29 @@ impl Cpu {
         }
     }
 
+    /// Opcode ADDI - Add Immediate Word (0b001000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=220>
+    pub(super) fn op_addi(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm().sign_extend();
+
+        log::trace!("ADDI {}, {}, {:#x}", rt, rs, imm);
+
+        let s = self.register(rs) as i32;
+
+        let Some(result) = s.checked_add(imm as i32) else {
+            panic!("ADDI overflow");
+        };
+
+        self.set_register(rt, result as u32);
+    }
+
     /// Opcode ADDIU - Add Immediate Unsigned Word (0b001001)
     ///
     /// # Arguments:

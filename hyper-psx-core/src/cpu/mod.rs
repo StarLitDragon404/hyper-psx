@@ -13,10 +13,11 @@ mod special;
 
 use crate::{
     bus::Bus,
-    cpu::{instruction::Instruction, register_index::RegisterIndex},
+    cpu::{
+        instruction::Instruction,
+        register_index::{CopRegisterIndex, RegisterIndex},
+    },
 };
-
-use self::register_index::CopRegisterIndex;
 
 /// The CPU component
 #[derive(Clone, Debug)]
@@ -56,6 +57,9 @@ impl Cpu {
     /// Steps the next instruction
     pub(crate) fn step(&mut self) {
         let instruction = Instruction(self.bus.read_u32(self.pc));
+
+        log::debug!("PC: {:#x}", self.pc);
+
         self.pc += 4;
 
         if self.branch_delay_pc.is_some() {
@@ -85,6 +89,7 @@ impl Cpu {
             },
             0b000010 => self.op_j(instruction),
             0b000101 => self.op_bne(instruction),
+            0b001000 => self.op_addi(instruction),
             0b001001 => self.op_addiu(instruction),
             0b001101 => self.op_ori(instruction),
             0b001111 => self.op_lui(instruction),
