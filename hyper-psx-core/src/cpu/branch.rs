@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{extension::ExtensionExt, instruction::Instruction, Cpu};
+use crate::cpu::{
+    extension::ExtensionExt, instruction::Instruction, register_index::RegisterIndex, Cpu,
+};
 
 impl Cpu {
     /// Opcode BLTZ - Branch On Less Than Zero (0b00000)
@@ -43,6 +45,28 @@ impl Cpu {
         log::trace!("BGEZ {}, {}", rs, address_offset as i32);
 
         if (self.register(rs) as i32) >= 0 {
+            self.branch(address_offset);
+        }
+    }
+
+    /// Opcode BLTZAL - Branch On Less Than Zero And Link (0b10000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=231>
+    pub(super) fn op_bltzal(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend() << 2;
+
+        log::trace!("BLTZAL {}, {}", rs, address_offset as i32);
+
+        self.set_register(RegisterIndex(31), self.pc);
+
+        if (self.register(rs) as i32) < 0 {
             self.branch(address_offset);
         }
     }
