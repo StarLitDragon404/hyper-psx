@@ -104,7 +104,7 @@ impl Cpu {
 
         log::trace!("BGTZ {}, {}", rs, address_offset as i32);
 
-        if self.register(rs) == 0 {
+        if self.register(rs) as i32 <= 0 {
             self.branch(address_offset);
         }
     }

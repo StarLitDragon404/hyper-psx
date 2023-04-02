@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+mod branch;
 mod cop0;
 mod extension;
 mod instruction;
@@ -102,6 +103,14 @@ impl Cpu {
                     "special instruction {:#010x} with opcode {:#08b}",
                     instruction.0,
                     instruction.funct()
+                ),
+            },
+            0b000001 => match instruction.branch_op() {
+                0b00000 => self.op_bltz(instruction),
+                _ => unimplemented!(
+                    "branch instruction {:#010x} with opcode {:#07b}",
+                    instruction.0,
+                    instruction.branch_op()
                 ),
             },
             0b000010 => self.op_j(instruction),

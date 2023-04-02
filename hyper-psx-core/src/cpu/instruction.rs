@@ -35,6 +35,14 @@ impl Instruction {
         RegisterIndex(((self.0 >> 21) & 0x1f) as u8)
     }
 
+    /// Returns the 5-bit branch operation code (20-16)
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
+    #[inline(always)]
+    pub(super) fn branch_op(&self) -> u8 {
+        ((self.0 >> 16) & 0x1f) as u8
+    }
+
     /// Returns the 5-bit target (source/destination) or branch condition (20-16)
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=214>
