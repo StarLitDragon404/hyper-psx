@@ -40,7 +40,7 @@ impl ExtensionExt for u16 {
 }
 
 impl ExtensionExt for u32 {
-    type Target = u64;
+    type Target = u32;
 
     fn zero_extend(self) -> Self::Target {
         self as Self::Target

@@ -26,6 +26,25 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode SRA - Shift Word Right Arithmetic (0b000000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=276>
+    pub(super) fn op_sra(&mut self, instruction: Instruction) {
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+        let sa = instruction.shamt();
+
+        log::trace!("SRA {}, {}, {:#x}", rd, rt, sa);
+
+        let result = (self.register(rt) as i32) >> sa;
+
+        self.set_register(rd, result as u32);
+    }
+
     /// Opcode JR - Jump Register (0b001000)
     ///
     /// # Arguments:
