@@ -213,6 +213,41 @@ impl Cpu {
         self.load_delay_register = Some((rt, result));
     }
 
+    /// Opcode SB - Store Byte (0b101000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * TLB refill exception
+    /// * TLB invalid exception
+    /// * TLB modification exception
+    /// * Bus error exception
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=268>
+    pub(super) fn op_sb(&mut self, instruction: Instruction) {
+        let base = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend();
+        let address = self.register(base).wrapping_add(address_offset);
+
+        log::trace!("SB {}, {}({})", rt, offset, base);
+
+        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+            log::warn!("Tried to write into memory, while cache is isolated");
+            return;
+        }
+
+        let result = self.register(rt) as u8;
+
+        self.bus.write_u8(address, result);
+    }
+
     /// Opcode SH - Store Halfword (0b101001)
     ///
     /// # Arguments:

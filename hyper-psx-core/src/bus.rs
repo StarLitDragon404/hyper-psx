@@ -93,6 +93,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f802000..0x1fa00000).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f802000;
+            log::warn!(
+                "Unhandled write to Expansion Region 2: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0xfffe0130..0xfffe0134).contains(&physical_adddress) {
             let offset = physical_adddress - 0xfffe0130;
             log::warn!(
