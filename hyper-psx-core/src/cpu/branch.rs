@@ -26,4 +26,24 @@ impl Cpu {
             self.branch(address_offset);
         }
     }
+
+    /// Opcode BGEZ - Branch On Greater Than Or Equal To Zero (0b00001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=226>
+    pub(super) fn op_bgez(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend() << 2;
+
+        log::trace!("BGEZ {}, {}", rs, address_offset as i32);
+
+        if (self.register(rs) as i32) >= 0 {
+            self.branch(address_offset);
+        }
+    }
 }

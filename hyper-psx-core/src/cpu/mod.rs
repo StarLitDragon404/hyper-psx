@@ -107,6 +107,7 @@ impl Cpu {
             },
             0b000001 => match instruction.branch_op() {
                 0b00000 => self.op_bltz(instruction),
+                0b00001 => self.op_bgez(instruction),
                 _ => unimplemented!(
                     "branch instruction {:#010x} with opcode {:#07b}",
                     instruction.0,
