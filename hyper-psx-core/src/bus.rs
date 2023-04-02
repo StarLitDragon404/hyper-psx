@@ -83,6 +83,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f801d80..0x1f801dc0).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801d80;
+            log::warn!(
+                "Unhandled write to SPU Control Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0xfffe0130..0xfffe0134).contains(&physical_adddress) {
             let offset = physical_adddress - 0xfffe0130;
             log::warn!(
@@ -97,6 +107,27 @@ impl Bus {
             "access write violation at address: {:#010x} ({:#010x})",
             physical_adddress, address
         );
+    }
+
+    /// Reads an u16 from a specific address
+    ///
+    /// # Arguments:
+    ///
+    /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 16-bits
+    pub(crate) fn write_u16(&mut self, address: u32, value: u16) {
+        if address % 2 != 0 {
+            panic!("unaligned write access at {:#010x}", address);
+        }
+
+        let byte_0 = (value & 0xff) as u8;
+        let byte_1 = ((value >> 8) & 0xff) as u8;
+
+        self.write_u8(address, byte_0);
+        self.write_u8(address + 1, byte_1);
     }
 
     /// Reads an u32 from a specific address

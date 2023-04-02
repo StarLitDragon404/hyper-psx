@@ -131,6 +131,7 @@ impl Cpu {
                 instruction.cop_op()
             ),
             0b100011 => self.op_lw(instruction),
+            0b101001 => self.op_sh(instruction),
             0b101011 => self.op_sw(instruction),
             _ => unimplemented!(
                 "instruction {:#010x} with opcode {:#08b}",
