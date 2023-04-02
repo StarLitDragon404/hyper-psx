@@ -15,6 +15,18 @@ pub(super) trait ExtensionExt {
     fn sign_extend(self) -> Self::Target;
 }
 
+impl ExtensionExt for u8 {
+    type Target = u16;
+
+    fn zero_extend(self) -> Self::Target {
+        self as Self::Target
+    }
+
+    fn sign_extend(self) -> Self::Target {
+        self as i8 as Self::Target
+    }
+}
+
 impl ExtensionExt for u16 {
     type Target = u32;
 
@@ -24,5 +36,17 @@ impl ExtensionExt for u16 {
 
     fn sign_extend(self) -> Self::Target {
         self as i16 as Self::Target
+    }
+}
+
+impl ExtensionExt for u32 {
+    type Target = u64;
+
+    fn zero_extend(self) -> Self::Target {
+        self as Self::Target
+    }
+
+    fn sign_extend(self) -> Self::Target {
+        self as i32 as Self::Target
     }
 }
