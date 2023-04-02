@@ -44,4 +44,23 @@ impl Cpu {
 
         self.set_register(rd, result);
     }
+
+    /// Opcode SLTU - Set On Less Than Unsigned (0b100101)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=275>
+    pub(super) fn op_sltu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        log::trace!("SLTU {}, {}, {}", rd, rs, rt);
+
+        let result = self.register(rs) < self.register(rt);
+
+        self.set_register(rd, result as u32);
+    }
 }
