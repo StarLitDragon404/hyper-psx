@@ -156,6 +156,10 @@ impl Cpu {
             0b010000 => match instruction.cop_op() {
                 0b00000 => self.op_mfc0(instruction),
                 0b00100 => self.op_mtc0(instruction),
+                0b10000 => match instruction.funct() {
+                    0b010000 => self.op_rfe(instruction),
+                    _ => unreachable!(),
+                },
                 _ => unimplemented!(
                     "cop0 instruction {:#010x} with opcode {:#07b}",
                     instruction.0,

@@ -61,8 +61,10 @@ impl Cpu {
     pub(super) fn raise_exception(&mut self, instruction: Instruction, exception: Exception) {
         let mut cause = self.cop0_register(CopRegisterIndex(13));
 
-        // Check if BD is set in CAUSE
-        let bd = (cause & (1 << 31)) != 0;
+        // Set BD if in branch delay
+        let bd = instruction.1 != (self.pc - 4);
+        cause |= 1 << 31;
+
         let pc = instruction.1 - if bd { 4 } else { 0 };
 
         // Set EPC to PC
