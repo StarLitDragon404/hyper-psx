@@ -75,7 +75,7 @@ impl Cpu {
         let rd = instruction.rd();
         let sa = instruction.shamt();
 
-        let t = self.register(rt);
+        let t = self.register(rt) as i32;
 
         log::trace!(
             "{}: {:#010x}: SRA {}, {}, {:#x}",
@@ -86,7 +86,7 @@ impl Cpu {
             sa
         );
 
-        let result = ((t as i32) >> sa) as u32;
+        let result = (t >> sa) as u32;
 
         self.set_register(rd, result);
     }
@@ -251,8 +251,8 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
-        let s = self.register(rs);
-        let t = self.register(rt);
+        let s = self.register(rs) as i32;
+        let t = self.register(rt) as i32;
 
         log::trace!(
             "{}: {:#010x}: ADD {}, {}, {}",
@@ -263,7 +263,7 @@ impl Cpu {
             rt
         );
 
-        let Some(result) = (s as i32).checked_add(t as i32) else {
+        let Some(result) = (s ).checked_add(t ) else {
             panic!("Integer overflow exception");
         };
 
@@ -388,7 +388,36 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
-    /// Opcode SLTU - Set On Less Than Unsigned (0b100101)
+    /// Opcode SLT - Set On Less Than (0b101010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=272>
+    pub(super) fn op_slt(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        let s = self.register(rs) as i32;
+        let t = self.register(rt) as i32;
+
+        log::trace!(
+            "{}: {:#010x}: SLT {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
+
+        let result = (s < t) as u32;
+
+        self.set_register(rd, result);
+    }
+
+    /// Opcode SLTU - Set On Less Than Unsigned (0b101011)
     ///
     /// # Arguments:
     ///
