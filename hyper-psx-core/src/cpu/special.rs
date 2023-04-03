@@ -549,6 +549,35 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode XOR - Exclusive Or (0b100111)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=289>
+    pub(super) fn op_xor(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        let s = self.register(rs);
+        let t = self.register(rt);
+
+        log::trace!(
+            "{}: {:#010x}: XOR {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
+
+        let result = s ^ t;
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode NOR - Nor (0b100111)
     ///
     /// # Arguments:
@@ -565,7 +594,7 @@ impl Cpu {
         let t = self.register(rt);
 
         log::trace!(
-            "{}: {:#010x}: OR {}, {}, {}",
+            "{}: {:#010x}: NOR {}, {}, {}",
             self.n,
             instruction.1,
             rd,
