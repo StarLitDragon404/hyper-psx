@@ -42,8 +42,10 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.cop_rd();
 
+        let t = self.register(rt);
+
         log::trace!("MTC0 {}, {}", rt, rd);
 
-        self.set_cop0_register(rd, self.register(rt));
+        self.set_cop0_register(rd, t);
     }
 }

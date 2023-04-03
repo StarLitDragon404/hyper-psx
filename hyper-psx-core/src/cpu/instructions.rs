@@ -59,11 +59,13 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BEQ {}, {}, {}", rs, rt, address_offset as i32);
 
-        if self.register(rs) == self.register(rt) {
+        if s == t {
             self.branch(address_offset);
         }
     }
@@ -80,11 +82,13 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BNE {}, {}, {}", rs, rt, address_offset as i32);
 
-        if self.register(rs) != self.register(rt) {
+        if s != t {
             self.branch(address_offset);
         }
     }
@@ -100,11 +104,12 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BGTZ {}, {}", rs, address_offset as i32);
 
-        if self.register(rs) as i32 <= 0 {
+        if s <= 0 {
             self.branch(address_offset);
         }
     }
@@ -120,11 +125,12 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BGTZ {}, {}", rs, address_offset as i32);
 
-        if self.register(rs) > 0 {
+        if s > 0 {
             self.branch(address_offset);
         }
     }
@@ -169,11 +175,12 @@ impl Cpu {
         let rt = instruction.rt();
         let imm = instruction.imm();
 
+        let s = self.register(rs);
         let value = imm.sign_extend();
 
         log::trace!("ADDIU {}, {}, {}", rt, rs, value as i32);
 
-        let result = self.register(rs).wrapping_add(value);
+        let result = s.wrapping_add(value);
 
         self.set_register(rt, result);
     }
@@ -190,13 +197,14 @@ impl Cpu {
         let rt = instruction.rt();
         let imm = instruction.imm();
 
+        let s = self.register(rs);
         let value = imm.sign_extend();
 
         log::trace!("SLTI {}, {}, {}", rt, rs, value as i32);
 
-        let result = (self.register(rs) as i32) < value as i32;
+        let result = ((s as i32) < value as i32) as u32;
 
-        self.set_register(rt, result as u32);
+        self.set_register(rt, result);
     }
 
     /// Opcode ANDI - And Immediate (0b001100)
@@ -211,11 +219,12 @@ impl Cpu {
         let rt = instruction.rt();
         let imm = instruction.imm();
 
+        let s = self.register(rs);
         let value = imm.zero_extend();
 
         log::trace!("ANDI {}, {}, {:#x}", rt, rs, value);
 
-        let result = self.register(rs) & value;
+        let result = s & value;
 
         self.set_register(rt, result);
     }
@@ -232,11 +241,12 @@ impl Cpu {
         let rt = instruction.rt();
         let imm = instruction.imm();
 
+        let s = self.register(rs);
         let value = imm.zero_extend();
 
         log::trace!("ORI {}, {}, {:#x}", rs, rt, value);
 
-        let result = self.register(rs) | value;
+        let result = s | value;
 
         self.set_register(rt, result);
     }
@@ -383,6 +393,7 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm();
 
+        let t = self.register(rt);
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
@@ -393,7 +404,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.register(rt) as u8;
+        let result = t as u8;
 
         self.bus.write_u8(address, result);
     }
@@ -418,6 +429,7 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm();
 
+        let t = self.register(rt);
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
@@ -428,7 +440,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.register(rt) as u16;
+        let result = t as u16;
 
         self.bus.write_u16(address, result);
     }
@@ -453,6 +465,7 @@ impl Cpu {
         let rt = instruction.rt();
         let offset = instruction.imm();
 
+        let t = self.register(rt);
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
@@ -463,7 +476,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.register(rt);
+        let result = t;
 
         self.bus.write_u32(address, result);
     }

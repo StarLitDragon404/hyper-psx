@@ -20,11 +20,12 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BLTZ {}, {}", rs, address_offset as i32);
 
-        if (self.register(rs) as i32) < 0 {
+        if s < 0 {
             self.branch(address_offset);
         }
     }
@@ -40,11 +41,12 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BGEZ {}, {}", rs, address_offset as i32);
 
-        if (self.register(rs) as i32) >= 0 {
+        if s >= 0 {
             self.branch(address_offset);
         }
     }
@@ -60,13 +62,14 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BLTZAL {}, {}", rs, address_offset as i32);
 
         self.set_register(RegisterIndex(31), self.pc);
 
-        if (self.register(rs) as i32) < 0 {
+        if s < 0 {
             self.branch(address_offset);
         }
     }
@@ -82,13 +85,14 @@ impl Cpu {
         let rs = instruction.rs();
         let offset = instruction.imm();
 
+        let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
         log::trace!("BGEZ {}, {}", rs, address_offset as i32);
 
         self.set_register(RegisterIndex(31), self.pc);
 
-        if (self.register(rs) as i32) >= 0 {
+        if s >= 0 {
             self.branch(address_offset);
         }
     }

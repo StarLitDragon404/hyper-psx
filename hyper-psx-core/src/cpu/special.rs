@@ -19,9 +19,11 @@ impl Cpu {
         let rd = instruction.rd();
         let sa = instruction.shamt();
 
+        let t = self.register(rt);
+
         log::trace!("SLL {}, {}, {:#x}", rd, rt, sa);
 
-        let result = self.register(rt) << sa;
+        let result = t << sa;
 
         self.set_register(rd, result);
     }
@@ -38,11 +40,13 @@ impl Cpu {
         let rd = instruction.rd();
         let sa = instruction.shamt();
 
+        let t = self.register(rt);
+
         log::trace!("SRA {}, {}, {:#x}", rd, rt, sa);
 
-        let result = (self.register(rt) as i32) >> sa;
+        let result = ((t as i32) >> sa) as u32;
 
-        self.set_register(rd, result as u32);
+        self.set_register(rd, result);
     }
 
     /// Opcode JR - Jump Register (0b001000)
@@ -166,7 +170,9 @@ impl Cpu {
             panic!("Integer overflow exception");
         };
 
-        self.set_register(rd, result as u32);
+        let result = result as u32;
+
+        self.set_register(rd, result);
     }
 
     /// Opcode ADDU - Add Unsigned Word (0b100001)
@@ -181,9 +187,12 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
+
         log::trace!("ADDU {}, {}, {}", rd, rs, rt);
 
-        let result = self.register(rt).wrapping_add(self.register(rs));
+        let result = s.wrapping_add(t);
 
         self.set_register(rd, result);
     }
@@ -200,9 +209,12 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
+
         log::trace!("SUBU {}, {}, {}", rd, rs, rt);
 
-        let result = self.register(rt).wrapping_sub(self.register(rs));
+        let result = s.wrapping_sub(t);
 
         self.set_register(rd, result);
     }
@@ -219,9 +231,12 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
+
         log::trace!("AND {}, {}, {}", rd, rs, rt);
 
-        let result = self.register(rs) & self.register(rt);
+        let result = s & t;
 
         self.set_register(rd, result);
     }
@@ -238,9 +253,12 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
+
         log::trace!("OR {}, {}, {}", rd, rs, rt);
 
-        let result = self.register(rs) | self.register(rt);
+        let result = s | t;
 
         self.set_register(rd, result);
     }
@@ -257,10 +275,13 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.rd();
 
+        let s = self.register(rs);
+        let t = self.register(rt);
+
         log::trace!("SLTU {}, {}, {}", rd, rs, rt);
 
-        let result = self.register(rs) < self.register(rt);
+        let result = (s < t) as u32;
 
-        self.set_register(rd, result as u32);
+        self.set_register(rd, result);
     }
 }
