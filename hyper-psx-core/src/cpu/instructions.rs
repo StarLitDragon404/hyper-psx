@@ -256,6 +256,35 @@ impl Cpu {
         self.set_register(rt, result);
     }
 
+    /// Opcode SLTIU - Set On Less Than Immediate Unsigned (0b001011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=274>
+    pub(super) fn op_sltiu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm();
+
+        let s = self.register(rs);
+        let value = imm.sign_extend();
+
+        log::trace!(
+            "{}: {:#010x}: SLTIU {}, {}, {}",
+            self.n,
+            instruction.1,
+            rt,
+            rs,
+            value as i32
+        );
+
+        let result = (s < value) as u32;
+
+        self.set_register(rt, result);
+    }
+
     /// Opcode ANDI - And Immediate (0b001100)
     ///
     /// # Arguments:
