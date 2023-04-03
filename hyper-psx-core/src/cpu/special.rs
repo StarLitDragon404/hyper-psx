@@ -120,6 +120,35 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode SRAV - Shift Word Right Arithmetic Variable (0b000100)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=277>
+    pub(super) fn op_srav(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        let t = self.register(rt) as i32;
+        let s = self.register(rs);
+
+        log::trace!(
+            "{}: {:#010x}: SLLV {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rt,
+            rs
+        );
+
+        let result = (t >> (s & 0x1f)) as u32;
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode JR - Jump Register (0b001000)
     ///
     /// # Arguments:
