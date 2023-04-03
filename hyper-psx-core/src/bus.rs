@@ -233,6 +233,26 @@ impl Bus {
         );
     }
 
+    /// Reads an u16 from a specific address
+    ///
+    /// # Arguments:
+    ///
+    /// * `address`: The absolute address
+    ///
+    /// # Panics
+    ///
+    /// This functions panics if the address is not aligned to 16-bits
+    pub(crate) fn read_u16(&self, address: u32) -> u16 {
+        if address % 2 != 0 {
+            panic!("unaligned read access at {:#010x}", address);
+        }
+
+        let byte_0 = self.read_u8(address) as u16;
+        let byte_1 = self.read_u8(address + 1) as u16;
+
+        (byte_1 << 8) | byte_0
+    }
+
     /// Reads an u32 from a specific address
     ///
     /// # Arguments:

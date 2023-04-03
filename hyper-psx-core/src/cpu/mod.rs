@@ -186,6 +186,7 @@ impl Cpu {
                 instruction.cop_op()
             ),
             0b100000 => self.op_lb(instruction),
+            0b100001 => self.op_lh(instruction),
             0b100011 => self.op_lw(instruction),
             0b100100 => self.op_lbu(instruction),
             0b101000 => self.op_sb(instruction),
