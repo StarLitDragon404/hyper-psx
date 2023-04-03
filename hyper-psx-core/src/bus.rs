@@ -93,6 +93,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f801100..0x1f801130).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801100;
+            log::warn!(
+                "Unhandled write to Timers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0x1f801d80..0x1f801dc0).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801d80;
             log::warn!(
@@ -205,6 +215,16 @@ impl Bus {
         if (0x1fc00000..0x1fc80000 + (512 * 1024)).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1fc00000;
             return self.bios.read_u8(offset);
+        }
+
+        if (0x1f801070..0x1f801078).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801070;
+            log::warn!(
+                "Unhandled read from Interrupt Control: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
         }
 
         panic!(
