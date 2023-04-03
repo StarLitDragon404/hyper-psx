@@ -6,6 +6,7 @@
 
 mod branch;
 mod cop0;
+mod cop2;
 mod exception;
 mod extension;
 mod instruction;
@@ -16,6 +17,7 @@ mod special;
 use crate::{
     bus::Bus,
     cpu::{
+        exception::Exception,
         instruction::Instruction,
         register_index::{CopRegisterIndex, RegisterIndex},
     },
@@ -180,21 +182,16 @@ impl Cpu {
                     instruction.cop_op()
                 ),
             },
-            0b010001 => unimplemented!(
-                "cop1 instruction {:#010x} with opcode {:#07b}",
-                instruction.0,
-                instruction.cop_op()
-            ),
-            0b010010 => unimplemented!(
-                "cop2 instruction {:#010x} with opcode {:#07b}",
-                instruction.0,
-                instruction.cop_op()
-            ),
-            0b010011 => unimplemented!(
-                "cop3 instruction {:#010x} with opcode {:#07b}",
-                instruction.0,
-                instruction.cop_op()
-            ),
+            0b010001 => self.raise_exception(instruction, Exception::Cpu),
+            0b010010 => {
+                // GTE
+                unimplemented!(
+                    "cop2 instruction {:#010x} with opcode {:#07b}",
+                    instruction.0,
+                    instruction.cop_op()
+                )
+            }
+            0b010011 => self.raise_exception(instruction, Exception::Cpu),
             0b100000 => self.op_lb(instruction),
             0b100001 => self.op_lh(instruction),
             0b100011 => self.op_lw(instruction),
