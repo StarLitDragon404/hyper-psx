@@ -187,6 +187,37 @@ impl Cpu {
         }
     }
 
+    /// Opcode DIVU - Divide Unsigned Word (0b011011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=237>
+    pub(super) fn op_divu(&mut self, instruction: Instruction) {
+        // TODO: Implement proper timing
+
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+
+        // The number to multiply or divide
+        let s = self.register(rs);
+
+        // The number to multiply with or to divide with
+        let t = self.register(rt);
+
+        log::trace!("{}: {:#010x}: DIVU {}, {}", self.n, instruction.1, rs, rt);
+
+        if t == 0 {
+            // Division by zero
+            self.hi = s;
+            self.lo = 0xffffffff;
+        } else {
+            self.hi = s % t;
+            self.lo = s / t;
+        }
+    }
+
     /// Opcode ADD - Add Word (0b100000)
     ///
     /// # Arguments:
