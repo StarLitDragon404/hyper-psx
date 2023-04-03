@@ -186,6 +186,23 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode MTLO - Move To LO (0b010011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=262>
+    pub(super) fn op_mtlo(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+
+        log::trace!("{}: {:#010x}: MTLO {}", self.n, instruction.1, rs);
+
+        let result = self.register(rs);
+
+        self.lo = result;
+    }
+
     /// Opcode DIV - Divide Word (0b011010)
     ///
     /// # Arguments:
