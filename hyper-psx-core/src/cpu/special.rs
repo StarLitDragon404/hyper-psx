@@ -169,6 +169,23 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode MTHI - Move To HI (0b010001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=261>
+    pub(super) fn op_mthi(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+
+        log::trace!("{}: {:#010x}: MTHI {}", self.n, instruction.1, rs);
+
+        let result = self.register(rs);
+
+        self.hi = result;
+    }
+
     /// Opcode MFLO - Move From LO (0b010010)
     ///
     /// # Arguments:

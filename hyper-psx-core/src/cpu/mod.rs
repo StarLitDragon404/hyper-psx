@@ -111,6 +111,7 @@ impl Cpu {
                 0b001001 => self.op_jalr(instruction),
                 0b001100 => self.op_syscall(instruction),
                 0b010000 => self.op_mfhi(instruction),
+                0b010001 => self.op_mthi(instruction),
                 0b010010 => self.op_mflo(instruction),
                 0b010011 => self.op_mtlo(instruction),
                 0b011010 => self.op_div(instruction),
