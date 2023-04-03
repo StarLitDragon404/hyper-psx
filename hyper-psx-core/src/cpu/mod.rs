@@ -32,6 +32,12 @@ pub(crate) struct Cpu {
     /// The load delay register
     load_delay_register: Option<(RegisterIndex, u32)>,
 
+    /// The high register for division remainder and multiplication result
+    hi: u32,
+
+    /// The low register for division quotient and multiplication result
+    lo: u32,
+
     /// The 64 cop registers
     cop0_registers: [u32; 64],
 
@@ -55,6 +61,8 @@ impl Cpu {
         Self {
             registers: [0x00000000; 32],
             out_registers: [0x00000000; 32],
+            hi: 0x00000000,
+            lo: 0x00000000,
             load_delay_register: None,
             cop0_registers: [0x00000000; 64],
             pc: 0xbfc00000,
@@ -95,6 +103,7 @@ impl Cpu {
                 0b000011 => self.op_sra(instruction),
                 0b001000 => self.op_jr(instruction),
                 0b001001 => self.op_jalr(instruction),
+                0b011010 => self.op_div(instruction),
                 0b100000 => self.op_add(instruction),
                 0b100001 => self.op_addu(instruction),
                 0b100011 => self.op_subu(instruction),

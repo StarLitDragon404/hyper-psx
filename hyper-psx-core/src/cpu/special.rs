@@ -89,6 +89,45 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
+    /// Opcode DIV - Divide Word (0b011010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * Integer overflow exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=237>
+    pub(super) fn op_div(&mut self, instruction: Instruction) {
+        // TODO: Implement proper timing
+
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+
+        // The number to multiply or divide
+        let s = self.register(rs) as i32;
+
+        // The number to multiply with or to divide with
+        let t = self.register(rt) as i32;
+
+        log::trace!("DIV {}, {}", rs, rt);
+
+        if t == 0 {
+            // Division by zero
+            self.hi = s as u32;
+            self.lo = if s >= 0 { 0xffffffff } else { 1 };
+        } else if s as u32 == 0x80000000 && t == -1 {
+            // Result is greater than u32
+            self.hi = 0;
+            self.lo = 0x80000000;
+        } else {
+            self.hi = (s % t) as u32;
+            self.lo = (s / t) as u32;
+        }
+    }
+
     /// Opcode ADD - Add Word (0b100000)
     ///
     /// # Arguments:
