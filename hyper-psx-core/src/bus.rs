@@ -289,11 +289,11 @@ impl Bus {
 
         if (0x1f801810..0x1f801818).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801810;
-            match offset {
+            if offset == 0x7 {
                 // Bit 28 - Ready to receive DMA Block
-                0x7 => return 0b00010000,
-                _ => {}
+                return 0b00010000;
             }
+
             log::warn!(
                 "Unhandled read from GPU Registers: {:#010x} ({:#x})",
                 address,
