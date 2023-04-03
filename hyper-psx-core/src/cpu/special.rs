@@ -135,7 +135,24 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
-    /// Opcode MFLO - Move From Lo (0b010010)
+    /// Opcode MFHI - Move From HI (0b010000)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=258>
+    pub(super) fn op_mfhi(&mut self, instruction: Instruction) {
+        let rd = instruction.rd();
+
+        log::trace!("{}: {:#010x}: MFHI {}", self.n, instruction.1, rd);
+
+        let result = self.hi;
+
+        self.set_register(rd, result);
+    }
+
+    /// Opcode MFLO - Move From LO (0b010010)
     ///
     /// # Arguments:
     ///
