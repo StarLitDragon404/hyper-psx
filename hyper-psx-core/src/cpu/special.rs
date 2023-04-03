@@ -324,6 +324,28 @@ impl Cpu {
         self.lo = result;
     }
 
+    /// Opcode MULT - Multiply Word (0b011001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=263>
+    pub(super) fn op_mult(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+
+        let s = self.register(rs) as i32 as i64;
+        let t = self.register(rt) as i32 as i64;
+
+        log::debug!("{}: {:#010x}: MULT {}, {}", self.n, instruction.1, rs, rt);
+
+        let result = (s * t) as u64;
+
+        self.hi = (result >> 32) as u32;
+        self.lo = result as u32;
+    }
+
     /// Opcode MULTU - Multiply Unsigned Word (0b011001)
     ///
     /// # Arguments:
