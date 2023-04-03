@@ -194,6 +194,7 @@ impl Cpu {
             0b010011 => self.raise_exception(instruction, Exception::Cpu),
             0b100000 => self.op_lb(instruction),
             0b100001 => self.op_lh(instruction),
+            0b100010 => self.op_lwl(instruction),
             0b100011 => self.op_lw(instruction),
             0b100100 => self.op_lbu(instruction),
             0b100101 => self.op_lhu(instruction),

@@ -441,6 +441,53 @@ impl Cpu {
         self.load_delay_register = Some((rt, result));
     }
 
+    /// Opcode LWL - Load Word Left (0b100010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * TLB refill exception
+    /// * TLB invalid exception
+    /// * Bus error exception
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=252>
+    pub(super) fn op_lwl(&mut self, instruction: Instruction) {
+        let base = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm();
+
+        let address_offset = offset.sign_extend();
+        let address = self.register(base).wrapping_add(address_offset);
+
+        let value = self.out_registers[rt.0 as usize];
+
+        let aligned_address = address & !3;
+        let aligned_word = self.bus.read_u32(aligned_address);
+
+        log::trace!(
+            "{}: {:#010x}: LWL {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
+
+        let result = match address & 3 {
+            0 => (value & 0x00ffffff) | (aligned_word << 24),
+            1 => (value & 0x0000ffff) | (aligned_word << 16),
+            2 => (value & 0x000000ff) | (aligned_word << 8),
+            3 => aligned_word,
+            _ => unreachable!(),
+        };
+
+        self.load_delay_register = Some((rt, result));
+    }
+
     /// Opcode LH - Load Halfword (0b100001)
     ///
     /// # Arguments:
