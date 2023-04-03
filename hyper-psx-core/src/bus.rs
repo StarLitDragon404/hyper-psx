@@ -113,10 +113,40 @@ impl Bus {
             return;
         }
 
+        if (0x1f801c00..0x1f801d80).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801c00;
+            log::warn!(
+                "Unhandled write to SPU Voice Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0x1f801d80..0x1f801dc0).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801d80;
             log::warn!(
                 "Unhandled write to SPU Control Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
+        if (0x1f801dc0..0x1f801e00).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801dc0;
+            log::warn!(
+                "Unhandled write to SPU Reverb Configuration Area: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
+        if (0x1f801e00..0x1f802000).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801e00;
+            log::warn!(
+                "Unhandled write to SPU Internal Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
@@ -241,6 +271,46 @@ impl Bus {
             let offset = physical_adddress - 0x1f801080;
             log::warn!(
                 "Unhandled read from DMA Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801c00..0x1f801d80).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801c00;
+            log::warn!(
+                "Unhandled read from SPU Voice Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801d80..0x1f801dc0).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801d80;
+            log::warn!(
+                "Unhandled read from SPU Control Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801dc0..0x1f801e00).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801dc0;
+            log::warn!(
+                "Unhandled read from SPU Reverb Configuration Area: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801e00..0x1f802000).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801e00;
+            log::warn!(
+                "Unhandled read from SPU Internal Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
