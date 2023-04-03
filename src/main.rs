@@ -14,7 +14,7 @@ use color_eyre::Result;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    logger::init(3)?;
+    logger::init(2)?;
 
     log::info!(" _     _ __   __  _____  _______  ______      _____  _______ _     _");
     log::info!(" |_____|   \\_/   |_____] |______ |_____/ ___ |_____] |______  \\___/ ");
