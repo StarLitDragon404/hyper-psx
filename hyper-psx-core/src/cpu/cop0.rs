@@ -22,7 +22,7 @@ impl Cpu {
         let rt = instruction.rt();
         let rd = instruction.cop_rd();
 
-        log::trace!("MFC0 {}, {}", rt, rd);
+        log::trace!("{}: {:#010x}: MFC0 {}, {}", self.n, instruction.1, rt, rd);
 
         self.set_register(rt, self.cop0_register(rd));
     }
@@ -44,7 +44,7 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!("MTC0 {}, {}", rt, rd);
+        log::trace!("{}: {:#010x}: MTC0 {}, {}", self.n, instruction.1, rt, rd);
 
         self.set_cop0_register(rd, t);
     }

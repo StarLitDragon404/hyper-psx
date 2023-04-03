@@ -8,7 +8,7 @@ use super::register_index::{CopRegisterIndex, RegisterIndex};
 
 /// An instruction wrapper
 #[derive(Clone, Copy, Debug)]
-pub(super) struct Instruction(pub(super) u32);
+pub(super) struct Instruction(pub(super) u32, pub(super) u32);
 
 impl Instruction {
     /// Returns the 6-bit operation code (31-26)

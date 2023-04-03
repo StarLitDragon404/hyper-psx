@@ -24,7 +24,7 @@ impl Cpu {
 
         let address = target << 2 | (self.pc & 0xf0000000);
 
-        log::trace!("J {:#x}", address);
+        log::trace!("{}: {:#010x}: J {:#x}", self.n, instruction.1, address);
 
         self.branch_delay_pc = Some(address);
     }
@@ -41,7 +41,7 @@ impl Cpu {
 
         let address = target << 2 | (self.pc & 0xf0000000);
 
-        log::trace!("JAL {:#x}", address);
+        log::trace!("{}: {:#010x}: JAL {:#x}", self.n, instruction.1, address);
 
         self.set_register(RegisterIndex(31), self.pc);
         self.branch_delay_pc = Some(address);
@@ -63,7 +63,14 @@ impl Cpu {
         let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!("BEQ {}, {}, {}", rs, rt, address_offset as i32);
+        log::trace!(
+            "{}: {:#010x}: BEQ {}, {}, {}",
+            self.n,
+            instruction.1,
+            rs,
+            rt,
+            address_offset as i32
+        );
 
         if s == t {
             self.branch(address_offset);
@@ -86,7 +93,14 @@ impl Cpu {
         let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!("BNE {}, {}, {}", rs, rt, address_offset as i32);
+        log::trace!(
+            "{}: {:#010x}: BNE {}, {}, {}",
+            self.n,
+            instruction.1,
+            rs,
+            rt,
+            address_offset as i32
+        );
 
         if s != t {
             self.branch(address_offset);
@@ -107,7 +121,13 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!("BGTZ {}, {}", rs, address_offset as i32);
+        log::trace!(
+            "{}: {:#010x}: BGTZ {}, {}",
+            self.n,
+            instruction.1,
+            rs,
+            address_offset as i32
+        );
 
         if s <= 0 {
             self.branch(address_offset);
@@ -128,7 +148,13 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!("BGTZ {}, {}", rs, address_offset as i32);
+        log::trace!(
+            "{}: {:#010x}: BGTZ {}, {}",
+            self.n,
+            instruction.1,
+            rs,
+            address_offset as i32
+        );
 
         if s > 0 {
             self.branch(address_offset);
@@ -154,7 +180,14 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!("ADDI {}, {}, {}", rt, rs, value as i32);
+        log::trace!(
+            "{}: {:#010x}: ADDI {}, {}, {}",
+            self.n,
+            instruction.1,
+            rt,
+            rs,
+            value as i32
+        );
 
         let Some(result) = (s as i32).checked_add(value as i32) else {
             panic!("Integer overflow exception");
@@ -178,7 +211,14 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!("ADDIU {}, {}, {}", rt, rs, value as i32);
+        log::trace!(
+            "{}: {:#010x}: ADDIU {}, {}, {}",
+            self.n,
+            instruction.1,
+            rt,
+            rs,
+            value as i32
+        );
 
         let result = s.wrapping_add(value);
 
@@ -200,7 +240,14 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!("SLTI {}, {}, {}", rt, rs, value as i32);
+        log::trace!(
+            "{}: {:#010x}: SLTI {}, {}, {}",
+            self.n,
+            instruction.1,
+            rt,
+            rs,
+            value as i32
+        );
 
         let result = ((s as i32) < value as i32) as u32;
 
@@ -222,7 +269,14 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.zero_extend();
 
-        log::trace!("ANDI {}, {}, {:#x}", rt, rs, value);
+        log::trace!(
+            "{}: {:#010x}: ANDI {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rt,
+            rs,
+            value
+        );
 
         let result = s & value;
 
@@ -244,7 +298,14 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.zero_extend();
 
-        log::trace!("ORI {}, {}, {:#x}", rs, rt, value);
+        log::trace!(
+            "{}: {:#010x}: ORI {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rs,
+            rt,
+            value
+        );
 
         let result = s | value;
 
@@ -264,7 +325,13 @@ impl Cpu {
 
         let value = imm.zero_extend();
 
-        log::trace!("LUI {}, {:#x}", rt, value);
+        log::trace!(
+            "{}: {:#010x}: LUI {}, {:#x}",
+            self.n,
+            instruction.1,
+            rt,
+            value
+        );
 
         let result = value << 16;
 
@@ -293,7 +360,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("LB {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: LB {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
@@ -327,7 +401,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("LW {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: LW {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
@@ -361,7 +442,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("LBU {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: LBU {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
@@ -397,7 +485,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SB {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: SB {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
@@ -433,7 +528,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SH {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: SH {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
@@ -469,7 +571,14 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!("SW {}, {}({})", rt, address_offset as i32, base);
+        log::trace!(
+            "{}: {:#010x}: SW {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");

@@ -49,6 +49,8 @@ pub(crate) struct Cpu {
 
     /// The Bus component
     bus: Bus,
+
+    n: usize,
 }
 
 impl Cpu {
@@ -68,13 +70,15 @@ impl Cpu {
             pc: 0xbfc00000,
             branch_delay_pc: None,
             bus,
+            n: 0,
         }
     }
 
     /// Steps the next instruction
     pub(crate) fn step(&mut self) {
-        let instruction = Instruction(self.bus.read_u32(self.pc));
+        let instruction = Instruction(self.bus.read_u32(self.pc), self.pc);
         self.pc += 4;
+        self.n += 1;
 
         if self.branch_delay_pc.is_some() {
             let branch_pc = self.branch_delay_pc.take().unwrap();

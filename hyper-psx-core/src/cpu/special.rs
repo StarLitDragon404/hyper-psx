@@ -21,7 +21,14 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!("SLL {}, {}, {:#x}", rd, rt, sa);
+        log::trace!(
+            "{}: {:#010x}: SLL {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rd,
+            rt,
+            sa
+        );
 
         let result = t << sa;
 
@@ -42,7 +49,14 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!("SRA {}, {}, {:#x}", rd, rt, sa);
+        log::trace!(
+            "{}: {:#010x}: SRA {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rd,
+            rt,
+            sa
+        );
 
         let result = ((t as i32) >> sa) as u32;
 
@@ -63,7 +77,7 @@ impl Cpu {
     pub(super) fn op_jr(&mut self, instruction: Instruction) {
         let rs = instruction.rs();
 
-        log::trace!("JR {}", rs);
+        log::trace!("{}: {:#010x}: JR {}", self.n, instruction.1, rs);
 
         let address = self.register(rs);
 
@@ -85,7 +99,7 @@ impl Cpu {
         let rs = instruction.rs();
         let rd = instruction.rd();
 
-        log::trace!("JALR {}", rs);
+        log::trace!("{}: {:#010x}: JALR {}", self.n, instruction.1, rs);
 
         let address = self.register(rs);
 
@@ -103,7 +117,7 @@ impl Cpu {
     pub(super) fn op_mflo(&mut self, instruction: Instruction) {
         let rd = instruction.rd();
 
-        log::trace!("MFLO {}", rd);
+        log::trace!("{}: {:#010x}: MFLO {}", self.n, instruction.1, rd);
 
         let result = self.lo;
 
@@ -129,7 +143,7 @@ impl Cpu {
         // The number to multiply with or to divide with
         let t = self.register(rt) as i32;
 
-        log::trace!("DIV {}, {}", rs, rt);
+        log::trace!("{}: {:#010x}: DIV {}, {}", self.n, instruction.1, rs, rt);
 
         if t == 0 {
             // Division by zero
@@ -164,7 +178,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("ADD {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: ADD {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let Some(result) = (s as i32).checked_add(t as i32) else {
             panic!("Integer overflow exception");
@@ -190,7 +211,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("ADDU {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: ADDU {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let result = s.wrapping_add(t);
 
@@ -212,7 +240,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("SUBU {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: SUBU {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let result = s.wrapping_sub(t);
 
@@ -234,7 +269,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("AND {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: AND {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let result = s & t;
 
@@ -256,7 +298,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("OR {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: OR {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let result = s | t;
 
@@ -278,7 +327,14 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!("SLTU {}, {}, {}", rd, rs, rt);
+        log::trace!(
+            "{}: {:#010x}: SLTU {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
 
         let result = (s < t) as u32;
 

@@ -11,7 +11,7 @@ use fern::{
     Dispatch,
 };
 use log::LevelFilter;
-use std::io;
+use std::{fs::OpenOptions, io};
 
 /// Initializes the global logger
 ///
@@ -19,14 +19,30 @@ use std::io;
 ///
 /// * `verbosity`: The verbosity the logger should operate on
 pub(crate) fn init(verbosity: usize) -> Result<()> {
+    let mut logger = Dispatch::new();
+
+    let color_logger = create_color_logger(verbosity);
+
+    logger = logger.chain(color_logger);
+
+    let file_logger = create_file_logger(verbosity)?;
+
+    logger = logger.chain(file_logger);
+
+    logger.apply()?;
+
+    Ok(())
+}
+
+fn create_color_logger(verbosity: usize) -> Dispatch {
+    let mut logger = Dispatch::new();
+
     let levels = ColoredLevelConfig::new()
         .error(Color::Red)
         .warn(Color::BrightYellow)
         .info(Color::Green)
         .debug(Color::Cyan)
         .trace(Color::Magenta);
-
-    let mut logger = Dispatch::new();
 
     logger = logger.format(move |out, message, record| {
         let reset = "\x1B[0m";
@@ -63,7 +79,50 @@ pub(crate) fn init(verbosity: usize) -> Result<()> {
 
     logger = logger.chain(io::stdout());
 
-    logger.apply()?;
+    logger
+}
 
-    Ok(())
+fn create_file_logger(verbosity: usize) -> Result<Dispatch> {
+    let mut logger = Dispatch::new();
+
+    logger = logger.format(move |out, message, record| {
+        let time = {
+            let current_time = Local::now().format("%Y-%m-%d %H:%M:%S");
+            format!("[{current_time}]")
+        };
+
+        let level = {
+            let current_level = record.level();
+            format!("{current_level:<5}")
+        };
+
+        let message = format!("{message}");
+        out.finish(format_args!("{time} {level} {message}",))
+    });
+
+    logger = logger.level_for("naga", LevelFilter::Off);
+
+    logger = logger.level_for("wgpu_core", LevelFilter::Off);
+
+    logger = logger.level_for("wgpu_hal", LevelFilter::Off);
+
+    logger = match verbosity {
+        0 => logger.level(LevelFilter::Warn),
+        1 => logger.level(LevelFilter::Info),
+        2 => logger.level(LevelFilter::Debug),
+        3 => logger.level(LevelFilter::Trace),
+        _ => logger.level(LevelFilter::Error),
+    };
+
+    logger = logger.chain(
+        OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open("latest.log")?,
+    );
+
+    logger = logger.chain(fern::log_file("latest.log")?);
+
+    Ok(logger)
 }
