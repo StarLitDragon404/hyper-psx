@@ -93,6 +93,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f801080..0x1f801100).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801080;
+            log::warn!(
+                "Unhandled write to DMA Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0x1f801100..0x1f801130).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801100;
             log::warn!(
@@ -221,6 +231,16 @@ impl Bus {
             let offset = physical_adddress - 0x1f801070;
             log::warn!(
                 "Unhandled read from Interrupt Control: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801080..0x1f801100).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801080;
+            log::warn!(
+                "Unhandled read from DMA Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
