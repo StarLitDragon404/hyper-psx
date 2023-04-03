@@ -204,11 +204,24 @@ impl Cpu {
             0b101010 => self.op_swl(instruction),
             0b101011 => self.op_sw(instruction),
             0b101110 => self.op_swr(instruction),
-            _ => unimplemented!(
-                "instruction {:#010x} with opcode {:#08b}",
-                instruction.0,
-                instruction.op()
-            ),
+            0b110000 => self.raise_exception(instruction, Exception::Cpu),
+            0b110001 => self.raise_exception(instruction, Exception::Cpu),
+            0b110010 => self.op_lwc2(instruction),
+            0b110011 => self.raise_exception(instruction, Exception::Cpu),
+            0b111000 => self.raise_exception(instruction, Exception::Cpu),
+            0b111001 => self.raise_exception(instruction, Exception::Cpu),
+            0b111010 => self.op_swc2(instruction),
+            0b111011 => self.raise_exception(instruction, Exception::Cpu),
+            _ => {
+                log::warn!(
+                    "{}: {:#010x}: unimplemented instruction {:#010x} with opcode {:#08b}",
+                    self.n,
+                    instruction.1,
+                    instruction.0,
+                    instruction.op()
+                );
+                self.raise_exception(instruction, Exception::Ri)
+            }
         }
     }
 
