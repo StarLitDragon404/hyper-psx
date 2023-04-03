@@ -62,24 +62,24 @@ impl Cpu {
         let mut cause = self.cop0_register(CopRegisterIndex(13));
 
         // Check if BD is set in CAUSE
-        let bd = (cause & (1 << 31)) == 1;
+        let bd = (cause & (1 << 31)) != 0;
         let pc = instruction.1 - if bd { 4 } else { 0 };
 
         // Set EPC to PC
         self.set_cop0_register(CopRegisterIndex(14), pc);
 
         // Set Exception ID in CAUSE
-        cause = cause | ((exception as u32) << 2);
+        cause |= (exception as u32) << 2;
         self.set_cop0_register(CopRegisterIndex(13), cause);
 
         // Shift enable bits left in SR
         let mut sr = self.cop0_register(CopRegisterIndex(12));
 
-        let bev = (sr & (1 << 22)) == 1;
+        let bev = (sr & (1 << 22)) != 0;
 
         let mode = sr & 0x3f;
-        sr = sr & !0x3f;
-        sr = sr | ((mode << 2) & 0x3f);
+        sr &= !0x3f;
+        sr |= (mode << 2) & 0x3f;
         self.set_cop0_register(CopRegisterIndex(12), sr);
 
         // Call the exception handler
