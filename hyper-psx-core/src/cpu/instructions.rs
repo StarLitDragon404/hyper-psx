@@ -900,4 +900,52 @@ impl Cpu {
 
         self.bus.write_u32(address, result);
     }
+
+    /// Opcode SWR - Store Word Right (0b101110)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * TLB refill exception
+    /// * TLB invalid exception
+    /// * TLB modification exception
+    /// * Bus error exception
+    /// * Address error exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=286>
+    pub(super) fn op_swr(&mut self, instruction: Instruction) {
+        let base = instruction.rs();
+        let rt = instruction.rt();
+        let offset = instruction.imm();
+
+        let t = self.register(rt);
+        let address_offset = offset.sign_extend();
+        let address = self.register(base).wrapping_add(address_offset);
+
+        let aligned_address = address & !3;
+
+        let value = self.bus.read_u32(aligned_address);
+
+        log::trace!(
+            "{}: {:#010x}: SWL {}, {}({})",
+            self.n,
+            instruction.1,
+            rt,
+            address_offset as i32,
+            base
+        );
+
+        let result = match address & 3 {
+            0 => value | t,
+            1 => (value & 0x000000ff) | (t << 8),
+            2 => (value & 0x0000ffff) | (t << 16),
+            3 => (value & 0x00ffffff) | (t << 24),
+            _ => unreachable!(),
+        };
+
+        self.bus.write_u32(aligned_address, result);
+    }
 }
