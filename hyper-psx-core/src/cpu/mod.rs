@@ -121,6 +121,7 @@ impl Cpu {
                 0b010001 => self.op_mthi(instruction),
                 0b010010 => self.op_mflo(instruction),
                 0b010011 => self.op_mtlo(instruction),
+                0b011001 => self.op_multu(instruction),
                 0b011010 => self.op_div(instruction),
                 0b011011 => self.op_divu(instruction),
                 0b100000 => self.op_add(instruction),

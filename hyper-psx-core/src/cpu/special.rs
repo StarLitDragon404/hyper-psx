@@ -307,6 +307,28 @@ impl Cpu {
         self.lo = result;
     }
 
+    /// Opcode MULTU - Multiply Unsigned Word (0b011001)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=264>
+    pub(super) fn op_multu(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+
+        let s = self.register(rs) as u64;
+        let t = self.register(rt) as u64;
+
+        log::debug!("{}: {:#010x}: MULTU {}, {}", self.n, instruction.1, rs, rt);
+
+        let result = s * t;
+
+        self.hi = (result >> 32) as u32;
+        self.lo = result as u32;
+    }
+
     /// Opcode DIV - Divide Word (0b011010)
     ///
     /// # Arguments:
