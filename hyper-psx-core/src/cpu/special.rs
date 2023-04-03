@@ -89,15 +89,28 @@ impl Cpu {
         self.branch_delay_pc = Some(address);
     }
 
-    /// Opcode DIV - Divide Word (0b011010)
+    /// Opcode MFLO - Move From Lo (0b010010)
     ///
     /// # Arguments:
     ///
     /// * `instruction`: The current instruction data
     ///
-    /// # Exceptions:
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=259>
+    pub(super) fn op_mflo(&mut self, instruction: Instruction) {
+        let rd = instruction.rd();
+
+        log::trace!("MFLO {}", rd);
+
+        let result = self.lo;
+
+        self.set_register(rd, result);
+    }
+
+    /// Opcode DIV - Divide Word (0b011010)
     ///
-    /// * Integer overflow exception
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=237>
     pub(super) fn op_div(&mut self, instruction: Instruction) {
