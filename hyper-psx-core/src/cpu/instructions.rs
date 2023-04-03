@@ -345,6 +345,35 @@ impl Cpu {
         self.set_register(rt, result);
     }
 
+    /// Opcode XORI - Exclusive Or Immediate (0b001110)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=290>
+    pub(super) fn op_xori(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let imm = instruction.imm();
+
+        let s = self.register(rs);
+        let value = imm.zero_extend();
+
+        log::trace!(
+            "{}: {:#010x}: XORI {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rs,
+            rt,
+            value
+        );
+
+        let result = s ^ value;
+
+        self.set_register(rt, result);
+    }
+
     /// Opcode LUI - Load Upper Immediate (0b001111)
     ///
     /// # Arguments:
