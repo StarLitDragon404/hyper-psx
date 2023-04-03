@@ -43,7 +43,7 @@ impl Cpu {
 
         log::trace!("{}: {:#010x}: JAL {:#x}", self.n, instruction.1, address);
 
-        self.set_register(RegisterIndex(31), self.pc);
+        self.set_register(RegisterIndex(31), self.pc + 4);
         self.branch_delay_pc = Some(address);
     }
 
@@ -193,7 +193,9 @@ impl Cpu {
             panic!("Integer overflow exception");
         };
 
-        self.set_register(rt, result as u32);
+        let result = result as u32;
+
+        self.set_register(rt, result);
     }
 
     /// Opcode ADDIU - Add Immediate Unsigned Word (0b001001)

@@ -85,7 +85,7 @@ impl Cpu {
             address_offset as i32
         );
 
-        self.set_register(RegisterIndex(31), self.pc);
+        self.set_register(RegisterIndex(31), self.pc + 4);
 
         if s < 0 {
             self.branch(address_offset);
@@ -114,7 +114,7 @@ impl Cpu {
             address_offset as i32
         );
 
-        self.set_register(RegisterIndex(31), self.pc);
+        self.set_register(RegisterIndex(31), self.pc + 4);
 
         if s >= 0 {
             self.branch(address_offset);
