@@ -314,8 +314,9 @@ impl Cpu {
             rt
         );
 
-        let Some(result) = (s ).checked_add(t ) else {
-            panic!("Integer overflow exception");
+        let Some(result) = (s).checked_add(t) else {
+            self.raise_exception(instruction, Exception::Ov);
+            return;
         };
 
         let result = result as u32;

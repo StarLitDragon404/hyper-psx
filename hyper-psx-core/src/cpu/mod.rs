@@ -77,6 +77,10 @@ impl Cpu {
 
     /// Steps the next instruction
     pub(crate) fn step(&mut self) {
+        if self.pc % 4 != 0 {
+            panic!("unaligned pc");
+        }
+
         let instruction = Instruction(self.bus.read_u32(self.pc), self.pc);
         self.pc += 4;
         self.n += 1;

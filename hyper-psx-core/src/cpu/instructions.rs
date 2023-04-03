@@ -5,6 +5,7 @@
  */
 
 use crate::cpu::{
+    exception::Exception,
     extension::ExtensionExt,
     instruction::Instruction,
     register_index::{CopRegisterIndex, RegisterIndex},
@@ -190,7 +191,8 @@ impl Cpu {
         );
 
         let Some(result) = (s as i32).checked_add(value as i32) else {
-            panic!("Integer overflow exception");
+            self.raise_exception(instruction, Exception::Ov);
+            return;
         };
 
         let result = result as u32;
@@ -446,6 +448,11 @@ impl Cpu {
             return;
         }
 
+        if address % 4 != 0 {
+            self.raise_exception(instruction, Exception::Adel);
+            return;
+        }
+
         let result = self.bus.read_u32(address);
 
         self.load_delay_register = Some((rt, result));
@@ -573,6 +580,11 @@ impl Cpu {
             return;
         }
 
+        if address % 2 != 0 {
+            self.raise_exception(instruction, Exception::Ades);
+            return;
+        }
+
         let result = t as u16;
 
         self.bus.write_u16(address, result);
@@ -613,6 +625,11 @@ impl Cpu {
 
         if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
+            return;
+        }
+
+        if address % 4 != 0 {
+            self.raise_exception(instruction, Exception::Ades);
             return;
         }
 
