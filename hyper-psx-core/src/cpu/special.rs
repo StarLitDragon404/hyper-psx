@@ -35,6 +35,34 @@ impl Cpu {
         self.set_register(rd, result);
     }
 
+    /// Opcode SRL - Shift Word Right Logical (0b000010)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=278>
+    pub(super) fn op_srl(&mut self, instruction: Instruction) {
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+        let sa = instruction.shamt();
+
+        let t = self.register(rt);
+
+        log::trace!(
+            "{}: {:#010x}: SRL {}, {}, {:#x}",
+            self.n,
+            instruction.1,
+            rd,
+            rt,
+            sa
+        );
+
+        let result = t >> sa;
+
+        self.set_register(rd, result);
+    }
+
     /// Opcode SRA - Shift Word Right Arithmetic (0b000000)
     ///
     /// # Arguments:
