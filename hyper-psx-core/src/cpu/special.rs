@@ -239,6 +239,23 @@ impl Cpu {
         self.raise_exception(instruction, Exception::Syscall);
     }
 
+    /// Opcode BREAK - Breakpoint (0b001101)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * Breakpoint exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=233>
+    pub(super) fn op_break(&mut self, instruction: Instruction) {
+        log::trace!("{}: {:#010x}: BREAK", self.n, instruction.1);
+
+        self.raise_exception(instruction, Exception::Bp);
+    }
+
     /// Opcode MFHI - Move From HI (0b010000)
     ///
     /// # Arguments:
