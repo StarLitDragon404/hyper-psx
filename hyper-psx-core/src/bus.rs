@@ -113,6 +113,16 @@ impl Bus {
             return;
         }
 
+        if (0x1f801810..0x1f801818).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801810;
+            log::warn!(
+                "Unhandled write to GPU Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return;
+        }
+
         if (0x1f801c00..0x1f801d80).contains(&physical_adddress) {
             let offset = physical_adddress - 0x1f801c00;
             log::warn!(
@@ -271,6 +281,21 @@ impl Bus {
             let offset = physical_adddress - 0x1f801080;
             log::warn!(
                 "Unhandled read from DMA Registers: {:#010x} ({:#x})",
+                address,
+                offset
+            );
+            return 0x00;
+        }
+
+        if (0x1f801810..0x1f801818).contains(&physical_adddress) {
+            let offset = physical_adddress - 0x1f801810;
+            match offset {
+                // Bit 28 - Ready to receive DMA Block
+                0x7 => return 0b00010000,
+                _ => {}
+            }
+            log::warn!(
+                "Unhandled read from GPU Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
