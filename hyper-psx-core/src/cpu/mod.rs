@@ -128,6 +128,7 @@ impl Cpu {
                 0b011011 => self.op_divu(instruction),
                 0b100000 => self.op_add(instruction),
                 0b100001 => self.op_addu(instruction),
+                0b100010 => self.op_sub(instruction),
                 0b100011 => self.op_subu(instruction),
                 0b100100 => self.op_and(instruction),
                 0b100101 => self.op_or(instruction),

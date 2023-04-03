@@ -462,7 +462,7 @@ impl Cpu {
             rt
         );
 
-        let Some(result) = (s).checked_add(t) else {
+        let Some(result) = s.checked_add(t) else {
             self.raise_exception(instruction, Exception::Ov);
             return;
         };
@@ -497,6 +497,40 @@ impl Cpu {
         );
 
         let result = s.wrapping_add(t);
+
+        self.set_register(rd, result);
+    }
+
+    /// Opcode SUB - Subtract Word (0b100011)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=280>
+    pub(super) fn op_sub(&mut self, instruction: Instruction) {
+        let rs = instruction.rs();
+        let rt = instruction.rt();
+        let rd = instruction.rd();
+
+        let s = self.register(rs) as i32;
+        let t = self.register(rt) as i32;
+
+        log::trace!(
+            "{}: {:#010x}: SUB {}, {}, {}",
+            self.n,
+            instruction.1,
+            rd,
+            rs,
+            rt
+        );
+
+        let Some(result) = s.checked_sub(t) else {
+            self.raise_exception(instruction, Exception::Ov);
+            return;
+        };
+
+        let result = result as u32;
 
         self.set_register(rd, result);
     }
