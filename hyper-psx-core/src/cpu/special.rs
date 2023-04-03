@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{instruction::Instruction, Cpu};
+use crate::cpu::{exception::Exception, instruction::Instruction, Cpu};
 
 impl Cpu {
     /// Opcode SLL - Shift Word Left Logical (0b000000)
@@ -133,6 +133,23 @@ impl Cpu {
 
         self.set_register(rd, self.pc);
         self.branch_delay_pc = Some(address);
+    }
+
+    /// Opcode SYSCALL - System Call (0b001100)
+    ///
+    /// # Arguments:
+    ///
+    /// * `instruction`: The current instruction data
+    ///
+    /// # Exceptions:
+    ///
+    /// * System Call exception
+    ///
+    /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=288>
+    pub(super) fn op_syscall(&mut self, instruction: Instruction) {
+        log::trace!("{}: {:#010x}: SYSCALL", self.n, instruction.1);
+
+        self.raise_exception(instruction, Exception::Syscall);
     }
 
     /// Opcode MFHI - Move From HI (0b010000)
