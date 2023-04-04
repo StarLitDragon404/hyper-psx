@@ -10,15 +10,15 @@ use crate::bus::memory::Memory;
 #[derive(Clone, Debug)]
 pub(crate) struct Ram {
     /// The data vector containing the RAM
-    data: Vec<u8>,
+    data: Box<[u8; Self::SIZE]>,
 }
 
 impl Ram {
+    const SIZE: usize = 1024 * (2 * 1024);
+
     /// Creates a RAM Component
     pub(crate) fn new() -> Self {
-        const SIZE: usize = 1024 * (2 * 1024);
-
-        let buffer = vec![0x00; SIZE];
+        let buffer = Box::new([0x00; Self::SIZE]);
 
         Self { data: buffer }
     }
