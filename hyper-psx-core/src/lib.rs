@@ -9,11 +9,13 @@
 mod bios;
 mod bus;
 mod cpu;
+mod dma;
 
 use crate::bios::Bios;
 use crate::bus::{ram::Ram, Bus};
+use crate::cpu::Cpu;
+use crate::dma::Dma;
 
-use cpu::Cpu;
 use std::path::Path;
 use thiserror::Error;
 
@@ -46,7 +48,9 @@ impl Psx {
         let bios = Bios::new(bios_path)?;
         let ram = Ram::new();
 
-        let bus = Bus::new(bios, ram);
+        let dma = Dma::new();
+
+        let bus = Bus::new(bios, ram, dma);
 
         let cpu = Cpu::new(bus);
 

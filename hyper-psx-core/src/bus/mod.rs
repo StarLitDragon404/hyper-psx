@@ -11,6 +11,7 @@ pub(crate) mod range;
 use crate::{
     bios::Bios,
     bus::{memory::Memory, ram::Ram, range::Range},
+    dma::Dma,
 };
 
 /// The BUS component connecting everything
@@ -21,6 +22,9 @@ pub(crate) struct Bus {
 
     /// The RAM component
     ram: Ram,
+
+    /// The DMA component,
+    dma: Dma,
 }
 
 impl Bus {
@@ -89,8 +93,9 @@ impl Bus {
     ///
     /// * `bios`: The BIOS component
     /// * `ram`: The RAM component
-    pub(crate) fn new(bios: Bios, ram: Ram) -> Self {
-        Self { bios, ram }
+    /// * `dma`: The DMA component
+    pub(crate) fn new(bios: Bios, ram: Ram, dma: Dma) -> Self {
+        Self { bios, ram, dma }
     }
 
     /// Masks a virtual address to a phyiscal address
@@ -176,11 +181,7 @@ impl Bus {
         }
 
         if let Some(offset) = Self::DMA_REGISTERS_RANGE.contains(physical_adddress) {
-            log::warn!(
-                "Unhandled write to DMA Registers: {:#010x} ({:#x})",
-                address,
-                offset
-            );
+            self.dma.write_u8(offset, value);
             return;
         }
 
@@ -380,12 +381,7 @@ impl Bus {
         }
 
         if let Some(offset) = Self::DMA_REGISTERS_RANGE.contains(physical_adddress) {
-            log::warn!(
-                "Unhandled read from DMA Registers: {:#010x} ({:#x})",
-                address,
-                offset
-            );
-            return 0x00;
+            return self.dma.read_u8(offset);
         }
 
         if let Some(offset) = Self::TIMERS_RANGE.contains(physical_adddress) {
@@ -407,17 +403,20 @@ impl Bus {
         }
 
         if let Some(offset) = Self::GPU_REGISTERS_RANGE.contains(physical_adddress) {
-            if offset == 0x7 {
-                // Bit 28 - Ready to receive DMA Block
-                return 0b00010000;
+            match offset {
+                4..=7 => {
+                    // Bit 28 - Ready to receive DMA Block
+                    return 0x10000000u32.read_u8(offset - 0x4);
+                }
+                _ => {
+                    log::warn!(
+                        "Unhandled read from GPU Registers: {:#010x} ({:#x})",
+                        address,
+                        offset
+                    );
+                    return 0x00;
+                }
             }
-
-            log::warn!(
-                "Unhandled read from GPU Registers: {:#010x} ({:#x})",
-                address,
-                offset
-            );
-            return 0x00;
         }
 
         if let Some(offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
