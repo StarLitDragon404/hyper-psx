@@ -9,14 +9,11 @@
 mod bios;
 mod bus;
 mod cpu;
-mod memory;
-mod ram;
 
 use crate::bios::Bios;
-use crate::bus::Bus;
+use crate::bus::{ram::Ram, Bus};
 
 use cpu::Cpu;
-use ram::Ram;
 use std::path::Path;
 use thiserror::Error;
 

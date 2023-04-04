@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::memory::Memory;
+use crate::bus::memory::Memory;
 
 use std::{
     fs::File,
