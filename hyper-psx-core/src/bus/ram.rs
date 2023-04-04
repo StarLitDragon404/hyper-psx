@@ -18,7 +18,10 @@ impl Ram {
 
     /// Creates a RAM Component
     pub(crate) fn new() -> Self {
-        let buffer = Box::new([0x00; Self::SIZE]);
+        let buffer = vec![0x00; Self::SIZE]
+            .into_boxed_slice()
+            .try_into()
+            .unwrap();
 
         Self { data: buffer }
     }
