@@ -11,7 +11,7 @@ mod exception;
 mod extension;
 mod instruction;
 mod instructions;
-mod register_index;
+mod register;
 mod special;
 
 use crate::{
@@ -19,7 +19,7 @@ use crate::{
     cpu::{
         exception::Exception,
         instruction::Instruction,
-        register_index::{CopRegisterIndex, RegisterIndex},
+        register::{Cop0Register, Register},
     },
 };
 
@@ -33,7 +33,7 @@ pub(crate) struct Cpu {
     out_registers: [u32; 32],
 
     /// The load delay register
-    load_delay_register: Option<(RegisterIndex, u32)>,
+    load_delay_register: Option<(Register, u32)>,
 
     /// The high register for division remainder and multiplication result
     hi: u32,
@@ -241,11 +241,13 @@ impl Cpu {
     ///
     /// * `register_index`: The register to be set
     /// * `value`: The value for the regsiter
-    fn set_register(&mut self, register_index: RegisterIndex, value: u32) {
-        assert!(register_index.0 < 32);
+    fn set_register(&mut self, register: Register, value: u32) {
+        let register_value = register as usize;
 
-        if register_index.0 != 0 {
-            self.out_registers[register_index.0 as usize] = value;
+        assert!(register_value < 32);
+
+        if register_value != 0 {
+            self.out_registers[register_value] = value;
         }
     }
 
@@ -254,9 +256,11 @@ impl Cpu {
     /// # Arguments:
     ///
     /// * `register_index`: The register to be read from
-    fn register(&self, register_index: RegisterIndex) -> u32 {
-        assert!(register_index.0 < 32);
-        self.registers[register_index.0 as usize]
+    fn register(&self, register: Register) -> u32 {
+        let register_value = register as usize;
+
+        assert!(register_value < 32);
+        self.registers[register_value as usize]
     }
 
     /// Sets a cop register to a value
@@ -265,9 +269,11 @@ impl Cpu {
     ///
     /// * `cop_register_index`: The cop register to be set
     /// * `value`: The value for the regsiter
-    fn set_cop0_register(&mut self, cop_register_index: CopRegisterIndex, value: u32) {
-        assert!(cop_register_index.0 < 64);
-        self.cop0_registers[cop_register_index.0 as usize] = value;
+    fn set_cop0_register(&mut self, cop0_register: Cop0Register, value: u32) {
+        let cop0_register_value = cop0_register as usize;
+
+        assert!(cop0_register_value < 64);
+        self.cop0_registers[cop0_register_value] = value;
     }
 
     /// Gets a value from a cop register
@@ -275,8 +281,10 @@ impl Cpu {
     /// # Arguments:
     ///
     /// * `cop_register_index`: The cop register to be read from
-    fn cop0_register(&self, cop_register_index: CopRegisterIndex) -> u32 {
-        assert!(cop_register_index.0 < 64);
-        self.cop0_registers[cop_register_index.0 as usize]
+    fn cop0_register(&self, cop0_register: Cop0Register) -> u32 {
+        let cop0_register_value = cop0_register as usize;
+
+        assert!(cop0_register_value < 64);
+        self.cop0_registers[cop0_register_value]
     }
 }

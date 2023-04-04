@@ -8,7 +8,7 @@ use crate::cpu::{
     exception::Exception,
     extension::ExtensionExt,
     instruction::Instruction,
-    register_index::{CopRegisterIndex, RegisterIndex},
+    register::{Cop0Register, Register},
     Cpu,
 };
 
@@ -44,7 +44,7 @@ impl Cpu {
 
         log::trace!("{}: {:#010x}: JAL {:#x}", self.n, instruction.1, address);
 
-        self.set_register(RegisterIndex(31), self.pc + 4);
+        self.set_register(Register::Ra, self.pc + 4);
         self.branch_delay_pc = Some(address);
     }
 
@@ -431,7 +431,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
@@ -463,7 +463,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        let value = self.out_registers[rt.0 as usize];
+        let value = self.out_registers[rt as usize];
 
         let aligned_address = address & !3;
         let aligned_word = self.bus.read_u32(aligned_address);
@@ -519,7 +519,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
@@ -565,7 +565,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
@@ -611,7 +611,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
@@ -652,7 +652,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
@@ -689,7 +689,7 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        let value = self.out_registers[rt.0 as usize];
+        let value = self.out_registers[rt as usize];
 
         let aligned_address = address & !3;
         let aligned_word = self.bus.read_u32(aligned_address);
@@ -747,7 +747,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }
@@ -790,7 +790,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }
@@ -886,7 +886,7 @@ impl Cpu {
             base
         );
 
-        if self.cop0_register(CopRegisterIndex(12)) & 0x10000 != 0 {
+        if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
             log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }

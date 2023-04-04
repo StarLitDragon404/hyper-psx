@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{instruction::Instruction, register_index::CopRegisterIndex, Cpu};
+use crate::cpu::{instruction::Instruction, register::Cop0Register, Cpu};
 
 /// The exception types of the PSX
 ///
@@ -59,7 +59,7 @@ impl Cpu {
     ///
     /// * `exception`: The exception to raise
     pub(super) fn raise_exception(&mut self, instruction: Instruction, exception: Exception) {
-        let mut cause = self.cop0_register(CopRegisterIndex(13));
+        let mut cause = self.cop0_register(Cop0Register::Cause);
 
         // Set BD if in branch delay
         let bd = instruction.1 != (self.pc - 4);
@@ -68,21 +68,21 @@ impl Cpu {
         let pc = instruction.1 - if bd { 4 } else { 0 };
 
         // Set EPC to PC
-        self.set_cop0_register(CopRegisterIndex(14), pc);
+        self.set_cop0_register(Cop0Register::Epc, pc);
 
         // Set Exception ID in CAUSE
         cause |= (exception as u32) << 2;
-        self.set_cop0_register(CopRegisterIndex(13), cause);
+        self.set_cop0_register(Cop0Register::Cause, cause);
 
         // Shift enable bits left in SR
-        let mut sr = self.cop0_register(CopRegisterIndex(12));
+        let mut sr = self.cop0_register(Cop0Register::Sr);
 
         let bev = (sr & (1 << 22)) != 0;
 
         let mode = sr & 0x3f;
         sr &= !0x3f;
         sr |= (mode << 2) & 0x3f;
-        self.set_cop0_register(CopRegisterIndex(12), sr);
+        self.set_cop0_register(Cop0Register::Sr, sr);
 
         // Call the exception handler
         let handler = if bev { 0xbfc00180 } else { 0x80000080 };

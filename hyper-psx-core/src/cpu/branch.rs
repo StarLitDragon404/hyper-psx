@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{
-    extension::ExtensionExt, instruction::Instruction, register_index::RegisterIndex, Cpu,
-};
+use crate::cpu::{extension::ExtensionExt, instruction::Instruction, register::Register, Cpu};
 
 impl Cpu {
     /// Opcode BLTZ - Branch On Less Than Zero (0b00000)
@@ -85,7 +83,7 @@ impl Cpu {
             address_offset as i32
         );
 
-        self.set_register(RegisterIndex(31), self.pc + 4);
+        self.set_register(Register::Ra, self.pc + 4);
 
         if s < 0 {
             self.branch(address_offset);
@@ -114,7 +112,7 @@ impl Cpu {
             address_offset as i32
         );
 
-        self.set_register(RegisterIndex(31), self.pc + 4);
+        self.set_register(Register::Ra, self.pc + 4);
 
         if s >= 0 {
             self.branch(address_offset);
