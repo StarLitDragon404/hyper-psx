@@ -260,7 +260,7 @@ impl Cpu {
         let register_value = register as usize;
 
         assert!(register_value < 32);
-        self.registers[register_value as usize]
+        self.registers[register_value]
     }
 
     /// Sets a cop register to a value
