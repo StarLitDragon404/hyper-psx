@@ -6,6 +6,7 @@
 
 mod base_address;
 mod channel;
+mod channel_control;
 
 use crate::{bus::memory::Memory, dma::channel::Channel};
 
