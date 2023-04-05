@@ -47,7 +47,13 @@ impl Dma {
 impl Memory for Dma {
     fn write_u8(&mut self, offset: u32, value: u8) {
         match offset {
-            0x00..=0x69 => {
+            0x00..=0x0c
+            | 0x10..=0x1c
+            | 0x20..=0x2c
+            | 0x30..=0x3c
+            | 0x40..=0x4c
+            | 0x50..=0x5c
+            | 0x60..=0x6c => {
                 let channel_id = Self::channel_id(offset);
                 let channel_offset = offset - (channel_id as u32 * 0x10);
                 self.channels[channel_id as usize].write_u8(channel_offset, value)
@@ -60,7 +66,13 @@ impl Memory for Dma {
 
     fn read_u8(&self, offset: u32) -> u8 {
         return match offset {
-            0x00..=0x69 => {
+            0x00..=0x0c
+            | 0x10..=0x1c
+            | 0x20..=0x2c
+            | 0x30..=0x3c
+            | 0x40..=0x4c
+            | 0x50..=0x5c
+            | 0x60..=0x6c => {
                 let channel_id = Self::channel_id(offset);
                 let channel_offset = offset - (channel_id as u32 * 0x10);
                 self.channels[channel_id as usize].read_u8(channel_offset)
