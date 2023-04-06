@@ -4,16 +4,14 @@
  * SPDX-License-Identifier: MIT
  */
 
-mod base_address;
 mod channel;
-mod channel_control;
 
 use crate::{bus::memory::Memory, dma::channel::Channel};
 
 /// Direct Memory Access Component
 #[derive(Clone, Debug)]
 pub(crate) struct Dma {
-    // TODO: Replace registers with structs
+    // TODO: Replace registers with individual fields
     /// DPCR - Control register
     control: u32,
 
@@ -25,6 +23,7 @@ pub(crate) struct Dma {
 }
 
 impl Dma {
+    /// Creates a DMA Component
     pub(crate) fn new() -> Self {
         Self {
             control: 0x07654321,
@@ -65,7 +64,7 @@ impl Memory for Dma {
     }
 
     fn read_u8(&self, offset: u32) -> u8 {
-        return match offset {
+        match offset {
             0x00..=0x0c
             | 0x10..=0x1c
             | 0x20..=0x2c
@@ -80,6 +79,6 @@ impl Memory for Dma {
             0x70..=0x73 => self.control.read_u8(offset - 0x70),
             0x74..=0x77 => self.interrupt.read_u8(offset - 0x74),
             _ => unreachable!("read from dma at {:#04x}", offset,),
-        };
+        }
     }
 }
