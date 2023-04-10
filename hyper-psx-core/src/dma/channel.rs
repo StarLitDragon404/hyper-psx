@@ -92,6 +92,12 @@ pub(super) struct Channel {
     // Base memory address
     base_address: u32,
 
+    /// The size of the blocks
+    block_size: u16,
+
+    /// The amount of the blocks
+    block_count: u16,
+
     /// The transfer direction
     transfer_direction: TransferDirection,
 
@@ -126,8 +132,16 @@ pub(super) struct Channel {
 impl Memory for Channel {
     fn write_u8(&mut self, offset: u32, value: u8) {
         match offset {
-            0x00..=0x02 => self.base_address.write_u8(offset, value),
+            0x00..=0x02 => {
+                self.base_address.write_u8(offset, value);
+            }
             0x03 => {}
+            0x04..=0x05 => {
+                self.block_size.write_u8(offset - 0x04, value);
+            }
+            0x06..=0x07 => {
+                self.block_count.write_u8(offset - 0x06, value);
+            }
             0x08 => {
                 let transfer_direction = value & 0b00000001;
                 self.transfer_direction = match transfer_direction {
@@ -195,40 +209,39 @@ impl Memory for Channel {
     }
 
     fn read_u8(&self, offset: u32) -> u8 {
+        let mut value = 0;
         match offset {
-            0x00..=0x02 => self.base_address.read_u8(offset),
-            0x03 => 0x00,
+            0x00..=0x02 => {
+                value = self.base_address.read_u8(offset);
+            }
+            0x03 => {}
+            0x04..=0x05 => {
+                value = self.block_size.read_u8(offset - 0x04);
+            }
+            0x06..=0x07 => {
+                value = self.block_count.read_u8(offset - 0x06);
+            }
             0x08 => {
-                let mut value = 0;
                 value |= self.transfer_direction as u8;
                 value |= (self.memory_address_step as u8) << 1;
-
-                value
             }
             0x09 => {
-                let mut value = 0;
                 value |= self.chopping_mode as u8;
                 value |= (self.sync_mode as u8) << 1;
-
-                value
             }
             0x0a => {
-                let mut value = 0;
                 value |= self.chopping_dma_window_size;
                 value |= self.chopping_cpu_window_size << 4;
-
-                value
             }
             0x0b => {
-                let mut value = 0;
                 value |= self.busy as u8;
                 value |= (self.trigger as u8) << 4;
                 value |= (self.unknown_pause as u8) << 5;
                 value |= (self.unknown as u8) << 6;
-
-                value
             }
             _ => unreachable!("read from dma channel at {:#04x}", offset),
         }
+
+        value
     }
 }

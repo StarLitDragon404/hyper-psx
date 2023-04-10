@@ -30,6 +30,20 @@ pub trait Memory {
     fn read_u8(&self, offset: u32) -> u8;
 }
 
+impl Memory for u16 {
+    fn write_u8(&mut self, offset: u32, value: u8) {
+        assert!(offset < 2);
+        let offset = offset * 8;
+        *self = (*self & !(0xff << offset)) | ((value as u16) << offset);
+    }
+
+    fn read_u8(&self, offset: u32) -> u8 {
+        assert!(offset < 2);
+        let offset = offset * 8;
+        ((self >> offset) & 0xff) as u8
+    }
+}
+
 impl Memory for u32 {
     fn write_u8(&mut self, offset: u32, value: u8) {
         assert!(offset < 4);
