@@ -207,10 +207,7 @@ impl Bus {
                     let channel = self.dma.channel_mut(channel_id);
 
                     if channel.ready() {
-                        let memory_stores = channel.start_transfer();
-                        for store in memory_stores {
-                            self.write_u32(store.0, store.1);
-                        }
+                        channel.start_transfer(&mut self.ram);
                     }
                 }
                 _ => {}

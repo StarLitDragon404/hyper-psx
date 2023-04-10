@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::bus::memory::Memory;
+use crate::bus::{memory::Memory, ram::Ram};
 
 use std::fmt::{self, Debug, Formatter};
 
@@ -179,16 +179,24 @@ impl Channel {
         }
     }
 
+    /// Finishes off a transfer
+    pub(crate) fn finish(&mut self) {
+        self.busy = Busy::Completed;
+        self.trigger = Trigger::Normal;
+
+        // TODO: Trigger interrupt
+    }
+
     /// Starts the block or linked list transfer for the DMA
-    pub(crate) fn start_transfer(&mut self) -> Vec<(u32, u32)> {
+    pub(crate) fn start_transfer(&mut self, ram: &mut Ram) {
         match self.sync_mode {
-            SyncMode::Immediately => self.transfer_immediately(),
+            SyncMode::Immediately => self.transfer_immediately(ram),
             _ => unimplemented!("transfer sync mode '{:?}'", self.sync_mode),
         }
     }
 
     /// Starts an immediate transfer
-    fn transfer_immediately(&mut self) -> Vec<(u32, u32)> {
+    fn transfer_immediately(&mut self, ram: &mut Ram) {
         let mut block_count = self.block_size;
         let mut address = self.base_address;
 
@@ -196,8 +204,6 @@ impl Channel {
             MemoryAddressStep::Forward => 4,
             MemoryAddressStep::Backward => -4_i8 as u32,
         };
-
-        let mut memory_stores = Vec::new();
 
         let mut last_address = address;
         while block_count != 0 {
@@ -217,7 +223,15 @@ impl Channel {
                         }
                     };
 
-                    memory_stores.push((address, value));
+                    let byte_0 = (value & 0xff) as u8;
+                    let byte_1 = ((value >> 8) & 0xff) as u8;
+                    let byte_2 = ((value >> 16) & 0xff) as u8;
+                    let byte_3 = ((value >> 24) & 0xff) as u8;
+
+                    ram.write_u8(address, byte_0);
+                    ram.write_u8(address + 1, byte_1);
+                    ram.write_u8(address + 2, byte_2);
+                    ram.write_u8(address + 3, byte_3);
                 }
                 TransferDirection::FromRam => match self.id {
                     Id::Otc => unreachable!(),
@@ -230,12 +244,7 @@ impl Channel {
             block_count -= 1;
         }
 
-        self.busy = Busy::Completed;
-        self.trigger = Trigger::Normal;
-
-        // TODO: Trigger interrupt
-
-        memory_stores
+        self.finish();
     }
 }
 
