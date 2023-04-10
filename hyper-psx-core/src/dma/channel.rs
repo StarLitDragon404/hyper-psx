@@ -191,6 +191,7 @@ impl Channel {
     pub(crate) fn start_transfer(&mut self, ram: &mut Ram) {
         match self.sync_mode {
             SyncMode::Immediately => self.transfer_immediately(ram),
+            SyncMode::LinkedList => self.transfer_linked_list(ram),
             _ => unimplemented!("transfer sync mode '{:?}'", self.sync_mode),
         }
     }
@@ -205,7 +206,6 @@ impl Channel {
             MemoryAddressStep::Backward => -4_i8 as u32,
         };
 
-        let mut last_address = address;
         while block_count != 0 {
             match self.transfer_direction {
                 TransferDirection::ToRam => {
@@ -215,7 +215,8 @@ impl Channel {
                                 // End Marker
                                 0xffffff
                             } else {
-                                last_address
+                                // Previous address
+                                address.wrapping_add(memory_address_step)
                             }
                         }
                         _ => {
@@ -239,9 +240,52 @@ impl Channel {
                 },
             }
 
-            last_address = address;
             address = address.wrapping_add(memory_address_step);
             block_count -= 1;
+        }
+
+        self.finish();
+    }
+
+    /// Starts a linked list transfer
+    fn transfer_linked_list(&mut self, ram: &mut Ram) {
+        let mut address = self.base_address;
+
+        let memory_address_step = match self.memory_address_step {
+            MemoryAddressStep::Forward => 4,
+            MemoryAddressStep::Backward => -4_i8 as u32,
+        };
+
+        loop {
+            let byte_0 = ram.read_u8(address) as u32;
+            let byte_1 = ram.read_u8(address + 1) as u32;
+            let byte_2 = ram.read_u8(address + 2) as u32;
+            let byte_3 = ram.read_u8(address + 3) as u32;
+
+            let node = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+
+            let mut node_size = (node >> 24) & 0xff;
+            while node_size != 0 {
+                address = address.wrapping_add(memory_address_step);
+
+                let byte_0 = ram.read_u8(address) as u32;
+                let byte_1 = ram.read_u8(address + 1) as u32;
+                let byte_2 = ram.read_u8(address + 2) as u32;
+                let byte_3 = ram.read_u8(address + 3) as u32;
+
+                let value = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+
+                log::debug!("Command: {:#010x}", value);
+
+                node_size -= 1;
+            }
+
+            if node & 0x800000 != 0 {
+                break;
+            }
+
+            let next_node = node & 0x00ffffff;
+            address = next_node;
         }
 
         self.finish();
@@ -251,6 +295,7 @@ impl Channel {
 impl Debug for Channel {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         fmt.debug_struct("Channel")
+            .field("id", &self.id)
             .field("base_address", &format_args!("{:#010x}", self.base_address))
             .field("block_size", &format_args!("{:#06x}", self.block_size))
             .field("block_count", &self.block_count)
