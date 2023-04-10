@@ -220,6 +220,7 @@ impl Channel {
                     memory_stores.push((address, value));
                 }
                 TransferDirection::FromRam => match self.id {
+                    Id::Otc => unreachable!(),
                     _ => unimplemented!("immediate transfer from channel '{:?}' from ram", self.id),
                 },
             }
