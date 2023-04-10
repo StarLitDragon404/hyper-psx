@@ -432,7 +432,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to read from memory, while cache is isolated");
+            // log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
 
@@ -520,7 +520,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to read from memory, while cache is isolated");
+            // log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
 
@@ -566,7 +566,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to read from memory, while cache is isolated");
+            // log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
 
@@ -612,7 +612,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to read from memory, while cache is isolated");
+            // log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
 
@@ -653,7 +653,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to read from memory, while cache is isolated");
+            // log::warn!("Tried to read from memory, while cache is isolated");
             return;
         }
 
@@ -748,7 +748,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to write into memory, while cache is isolated");
+            // log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }
 
@@ -791,7 +791,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to write into memory, while cache is isolated");
+            // log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }
 
@@ -887,7 +887,7 @@ impl Cpu {
         );
 
         if self.cop0_register(Cop0Register::Sr) & 0x10000 != 0 {
-            log::warn!("Tried to write into memory, while cache is isolated");
+            // log::warn!("Tried to write into memory, while cache is isolated");
             return;
         }
 

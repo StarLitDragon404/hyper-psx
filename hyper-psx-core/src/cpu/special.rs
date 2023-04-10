@@ -360,7 +360,7 @@ impl Cpu {
         let s = self.register(rs) as u64;
         let t = self.register(rt) as u64;
 
-        log::debug!("{}: {:#010x}: MULTU {}, {}", self.n, instruction.1, rs, rt);
+        log::trace!("{}: {:#010x}: MULTU {}, {}", self.n, instruction.1, rs, rt);
 
         let result = s * t;
 

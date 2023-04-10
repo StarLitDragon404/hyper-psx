@@ -126,57 +126,69 @@ impl Bus {
             return;
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_1_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_1_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Expansion Region 1: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::SCRATCHPAD_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::SCRATCHPAD_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Scratchpad: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_1_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_1_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Memory Control 1: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::PERIPHERAL_IO_PORTS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::PERIPHERAL_IO_PORTS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Peripheral I/O Ports: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_2_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_2_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Memory Control 2: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::INTERRUPT_CONTROL_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::INTERRUPT_CONTROL_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Interrupt Control: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
@@ -207,21 +219,25 @@ impl Bus {
             return;
         }
 
-        if let Some(offset) = Self::TIMERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::TIMERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Timers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::CDROM_REGISTERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::CDROM_REGISTERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to CDROM Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
@@ -234,49 +250,59 @@ impl Bus {
             return;
         }
 
-        if let Some(offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to MDEC Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::SPU_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::SPU_RANGE.contains(physical_adddress) {
+            /*
             log::warn!("Unhandled write to SPU: {:#010x} ({:#x})", address, offset);
+            */
             return;
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_2_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_2_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Expansion Region 2: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_3_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_3_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Expansion Region 3: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
         if let Some(offset) = Self::BIOS_RANGE.contains(physical_adddress) {
-            log::warn!("Unhandled write to BIOS: {:#010x} ({:#x})", address, offset);
+            self.bios.write_u8(offset, value);
             return;
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_3_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_3_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled write to Memory Control 3: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return;
         }
 
@@ -348,57 +374,69 @@ impl Bus {
             return self.ram.read_u8(offset);
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_1_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_1_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Expansion Region 1: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0xff;
         }
 
-        if let Some(offset) = Self::SCRATCHPAD_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::SCRATCHPAD_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Scratchpad: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_1_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_1_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Memory Control 1: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::PERIPHERAL_IO_PORTS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::PERIPHERAL_IO_PORTS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Peripheral I/O Ports: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_2_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_2_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Memory Control 2: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::INTERRUPT_CONTROL_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::INTERRUPT_CONTROL_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Interrupt Control: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
@@ -406,21 +444,25 @@ impl Bus {
             return self.dma.read_u8(offset);
         }
 
-        if let Some(offset) = Self::TIMERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::TIMERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Timers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::CDROM_REGISTERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::CDROM_REGISTERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from CDROM Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
@@ -441,35 +483,43 @@ impl Bus {
             }
         }
 
-        if let Some(offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from MDEC Registers: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::SPU_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::SPU_RANGE.contains(physical_adddress) {
+            /*
             log::warn!("Unhandled read from SPU: {:#010x} ({:#x})", address, offset);
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_2_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_2_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Expansion Region 2: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
-        if let Some(offset) = Self::EXPANSION_REGION_3_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::EXPANSION_REGION_3_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Expansion Region 3: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
@@ -477,12 +527,14 @@ impl Bus {
             return self.bios.read_u8(offset);
         }
 
-        if let Some(offset) = Self::MEMORY_CONTROL_3_RANGE.contains(physical_adddress) {
+        if let Some(_offset) = Self::MEMORY_CONTROL_3_RANGE.contains(physical_adddress) {
+            /*
             log::warn!(
                 "Unhandled read from Memory Control 3: {:#010x} ({:#x})",
                 address,
                 offset
             );
+            */
             return 0x00;
         }
 
