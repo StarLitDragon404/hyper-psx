@@ -190,14 +190,16 @@ impl Channel {
     /// Starts the block or linked list transfer for the DMA
     pub(crate) fn start_transfer(&mut self, ram: &mut Ram) {
         match self.sync_mode {
-            SyncMode::Immediately => self.transfer_immediately(ram),
+            SyncMode::Immediately => self.transfer_block(ram),
+            SyncMode::SyncBlocks => self.transfer_block(ram),
             SyncMode::LinkedList => self.transfer_linked_list(ram),
-            _ => unimplemented!("transfer sync mode '{:?}'", self.sync_mode),
         }
     }
 
-    /// Starts an immediate transfer
-    fn transfer_immediately(&mut self, ram: &mut Ram) {
+    /// Starts a block transfer
+    fn transfer_block(&mut self, ram: &mut Ram) {
+        log::debug!("Transfer Block: {:?}", self);
+
         let mut block_count = self.block_size;
         let mut address = self.base_address;
 
@@ -235,7 +237,16 @@ impl Channel {
                     ram.write_u8(address + 3, byte_3);
                 }
                 TransferDirection::FromRam => match self.id {
-                    Id::Otc => unreachable!(),
+                    Id::Gpu => {
+                        let byte_0 = ram.read_u8(address) as u32;
+                        let byte_1 = ram.read_u8(address + 1) as u32;
+                        let byte_2 = ram.read_u8(address + 2) as u32;
+                        let byte_3 = ram.read_u8(address + 3) as u32;
+
+                        let _command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+
+                        // TODO: Handle GPU Command
+                    }
                     _ => unimplemented!("immediate transfer from channel '{:?}' from ram", self.id),
                 },
             }
@@ -249,6 +260,8 @@ impl Channel {
 
     /// Starts a linked list transfer
     fn transfer_linked_list(&mut self, ram: &mut Ram) {
+        log::debug!("Transfer Linked List: {:?}", self);
+
         let mut address = self.base_address;
 
         let memory_address_step = match self.memory_address_step {
@@ -273,9 +286,9 @@ impl Channel {
                 let byte_2 = ram.read_u8(address + 2) as u32;
                 let byte_3 = ram.read_u8(address + 3) as u32;
 
-                let value = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+                let _command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
 
-                log::debug!("Command: {:#010x}", value);
+                // TODO: Handle GPU Command
 
                 node_size -= 1;
             }
