@@ -6,9 +6,30 @@
 
 use crate::bus::memory::Memory;
 
+use std::fmt::{self, Debug, Formatter};
+
+/// Channel id
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum Id {
+    #[default]
+    MacroBlockIn = 0,
+
+    MacroBlockOut = 1,
+
+    Gpu = 2,
+
+    Cdrom = 3,
+
+    Spu = 4,
+
+    Pio = 5,
+
+    Otc = 6,
+}
+
 /// Channel transfer direction
-#[derive(Clone, Copy, Debug, Default)]
-enum TransferDirection {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum TransferDirection {
     /// To main RAM
     #[default]
     ToRam = 0x0,
@@ -18,8 +39,8 @@ enum TransferDirection {
 }
 
 /// Channel memory step
-#[derive(Clone, Copy, Debug, Default)]
-enum MemoryAddressStep {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum MemoryAddressStep {
     /// Forwards +4
     #[default]
     Forward = 0x0,
@@ -29,8 +50,8 @@ enum MemoryAddressStep {
 }
 
 /// Channel chopping
-#[derive(Clone, Copy, Debug, Default)]
-enum ChoppingMode {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum ChoppingMode {
     /// Normal mode
     #[default]
     Normal = 0x0,
@@ -40,22 +61,22 @@ enum ChoppingMode {
 }
 
 /// Channel transfer synchronisation
-#[derive(Clone, Copy, Debug, Default)]
-enum SyncMode {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum SyncMode {
     /// Immediately and all at once
     #[default]
     Immediately = 0x0,
 
     // Sync blocks for DMA requests
-    Blocks = 0x1,
+    SyncBlocks = 0x1,
 
     /// Linked-List mode
     LinkedList = 0x2,
 }
 
 /// Channel start/busy
-#[derive(Clone, Copy, Debug, Default)]
-enum Busy {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum Busy {
     /// Completed
     #[default]
     Completed = 0x0,
@@ -65,8 +86,8 @@ enum Busy {
 }
 
 /// Channel start/trigger
-#[derive(Clone, Copy, Debug, Default)]
-enum Trigger {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum Trigger {
     /// Normal
     #[default]
     Normal = 0x0,
@@ -76,8 +97,8 @@ enum Trigger {
 }
 
 /// Channel (unknown) pause
-#[derive(Clone, Copy, Debug, Default)]
-enum UnknownPause {
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum UnknownPause {
     /// Nothing
     #[default]
     No = 0x0,
@@ -87,8 +108,10 @@ enum UnknownPause {
 }
 
 /// DMA Channel
-#[derive(Clone, Copy, Debug, Default)]
-pub(super) struct Channel {
+#[derive(Clone, Copy, Default)]
+pub(crate) struct Channel {
+    id: Id,
+
     // Base memory address
     base_address: u32,
 
@@ -127,6 +150,118 @@ pub(super) struct Channel {
 
     /// The unknown value
     unknown: bool,
+}
+
+impl Channel {
+    /// Creates a new DMA channel
+    ///
+    /// Arguments:
+    ///
+    /// * `id`: The id of the channel
+    pub(super) fn new(id: Id) -> Self {
+        Self {
+            id,
+            ..Default::default()
+        }
+    }
+
+    /// Checks if the current channel is ready to transfer data by checking if
+    /// it is enabled/busy and if the trigger mode is a manual start
+    pub(crate) fn ready(&self) -> bool {
+        if self.busy != Busy::Busy {
+            return false;
+        }
+
+        if self.sync_mode != SyncMode::Immediately {
+            true
+        } else {
+            self.trigger == Trigger::ManualStart
+        }
+    }
+
+    /// Starts the block or linked list transfer for the DMA
+    pub(crate) fn start_transfer(&mut self) -> Vec<(u32, u32)> {
+        match self.sync_mode {
+            SyncMode::Immediately => self.transfer_immediately(),
+            _ => unimplemented!("transfer sync mode '{:?}'", self.sync_mode),
+        }
+    }
+
+    /// Starts an immediate transfer
+    fn transfer_immediately(&mut self) -> Vec<(u32, u32)> {
+        let mut block_count = self.block_size;
+        let mut address = self.base_address;
+
+        let memory_address_step = match self.memory_address_step {
+            MemoryAddressStep::Forward => 4,
+            MemoryAddressStep::Backward => -4_i8 as u32,
+        };
+
+        let mut memory_stores = Vec::new();
+
+        let mut last_address = address;
+        while block_count != 0 {
+            match self.transfer_direction {
+                TransferDirection::ToRam => {
+                    let value = match self.id {
+                        Id::Otc => {
+                            if block_count == 1 {
+                                // End Marker
+                                0xffffff
+                            } else {
+                                last_address
+                            }
+                        }
+                        _ => {
+                            unimplemented!("immediate transfer from channel '{:?}' to ram", self.id)
+                        }
+                    };
+
+                    memory_stores.push((address, value));
+                }
+                TransferDirection::FromRam => match self.id {
+                    _ => unimplemented!("immediate transfer from channel '{:?}' from ram", self.id),
+                },
+            }
+
+            last_address = address;
+            address = address.wrapping_add(memory_address_step);
+            block_count -= 1;
+        }
+
+        self.busy = Busy::Completed;
+        self.trigger = Trigger::Normal;
+
+        // TODO: Trigger interrupt
+
+        memory_stores
+    }
+}
+
+impl Debug for Channel {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        fmt.debug_struct("Channel")
+            .field("base_address", &format_args!("{:#010x}", self.base_address))
+            .field("block_size", &format_args!("{:#06x}", self.block_size))
+            .field("block_count", &self.block_count)
+            .field("transfer_direction", &self.transfer_direction)
+            .field("memory_address_step", &self.memory_address_step)
+            .field("chopping_mode", &self.chopping_mode)
+            .field("sync_mode", &self.sync_mode)
+            .field(
+                "chopping_dma_window_size",
+                &format_args!("{:#04x}", self.chopping_dma_window_size),
+            )
+            .field(
+                "chopping_cpu_window_size",
+                &format_args!("{:#04x}", self.chopping_cpu_window_size),
+            )
+            .field("busy", &self.busy)
+            .field("trigger", &self.trigger)
+            .field("unknown_pause", &self.unknown_pause)
+            .field("unknown", &self.unknown)
+            .finish()
+    }
 }
 
 impl Memory for Channel {
@@ -168,7 +303,7 @@ impl Memory for Channel {
                 let sync_mode = (value & 0b00000110) >> 1;
                 self.sync_mode = match sync_mode {
                     0 => SyncMode::Immediately,
-                    1 => SyncMode::Blocks,
+                    1 => SyncMode::SyncBlocks,
                     2 => SyncMode::LinkedList,
                     _ => unreachable!(),
                 };

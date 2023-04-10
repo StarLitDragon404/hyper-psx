@@ -4,9 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-mod channel;
+pub(crate) mod channel;
 
-use crate::{bus::memory::Memory, dma::channel::Channel};
+use crate::{
+    bus::memory::Memory,
+    dma::channel::{Channel, Id},
+};
 
 /// Direct Memory Access Component
 #[derive(Clone, Debug)]
@@ -25,10 +28,20 @@ pub(crate) struct Dma {
 impl Dma {
     /// Creates a DMA Component
     pub(crate) fn new() -> Self {
+        let channels = [
+            Channel::new(Id::MacroBlockIn),
+            Channel::new(Id::MacroBlockOut),
+            Channel::new(Id::Gpu),
+            Channel::new(Id::Cdrom),
+            Channel::new(Id::Spu),
+            Channel::new(Id::Pio),
+            Channel::new(Id::Otc),
+        ];
+
         Self {
             control: 0x07654321,
             interrupt: 0,
-            channels: [Channel::default(); 7],
+            channels,
         }
     }
 
@@ -38,8 +51,18 @@ impl Dma {
     ///
     /// * `offset`: The memory offset
     #[inline(always)]
-    fn channel_id(offset: u32) -> u8 {
+    pub(crate) fn channel_id(offset: u32) -> u8 {
         ((offset >> 4) & 0xf) as u8
+    }
+
+    /// Gives the channel based on the id
+    ///
+    /// # Arguments:
+    ///
+    /// * `id`: The channel id
+    pub(crate) fn channel_mut(&mut self, id: u8) -> &mut Channel {
+        assert!(id < 8);
+        &mut self.channels[id as usize]
     }
 }
 
@@ -55,10 +78,16 @@ impl Memory for Dma {
             | 0x60..=0x6c => {
                 let channel_id = Self::channel_id(offset);
                 let channel_offset = offset - (channel_id as u32 * 0x10);
-                self.channels[channel_id as usize].write_u8(channel_offset, value)
+                let channel = &mut self.channels[channel_id as usize];
+
+                channel.write_u8(channel_offset, value);
             }
-            0x70..=0x73 => self.control.write_u8(offset - 0x70, value),
-            0x74..=0x77 => self.interrupt.write_u8(offset - 0x74, value),
+            0x70..=0x73 => {
+                self.control.write_u8(offset - 0x70, value);
+            }
+            0x74..=0x77 => {
+                self.interrupt.write_u8(offset - 0x74, value);
+            }
             _ => unreachable!("write to dma at {:#04x} with value {:#04x}", offset, value),
         }
     }

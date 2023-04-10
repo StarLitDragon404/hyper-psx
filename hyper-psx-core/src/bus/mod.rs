@@ -182,6 +182,28 @@ impl Bus {
 
         if let Some(offset) = Self::DMA_REGISTERS_RANGE.contains(physical_adddress) {
             self.dma.write_u8(offset, value);
+
+            match offset {
+                0x00..=0x0c
+                | 0x10..=0x1c
+                | 0x20..=0x2c
+                | 0x30..=0x3c
+                | 0x40..=0x4c
+                | 0x50..=0x5c
+                | 0x60..=0x6c => {
+                    let channel_id = Dma::channel_id(offset);
+                    let channel = self.dma.channel_mut(channel_id);
+
+                    if channel.ready() {
+                        let memory_stores = channel.start_transfer();
+                        for store in memory_stores {
+                            self.write_u32(store.0, store.1);
+                        }
+                    }
+                }
+                _ => {}
+            }
+
             return;
         }
 
@@ -406,7 +428,7 @@ impl Bus {
             match offset {
                 4..=7 => {
                     // Bit 28 - Ready to receive DMA Block
-                    return 0x10000000u32.read_u8(offset - 0x4);
+                    return 0x1c000000u32.read_u8(offset - 0x4);
                 }
                 _ => {
                     log::warn!(
