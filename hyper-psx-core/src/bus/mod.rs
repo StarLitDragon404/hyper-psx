@@ -37,7 +37,7 @@ impl Bus {
     ];
 
     /// RAM Range
-    const RAM_RANGE: Range = Range::new(0x00000000, 0x1f000000);
+    const RAM_RANGE: Range = Range::new(0x00000000, 0x200000);
 
     /// Expansion Region 1 Range
     const EXPANSION_REGION_1_RANGE: Range = Range::new(0x1f000000, 0x800000);
