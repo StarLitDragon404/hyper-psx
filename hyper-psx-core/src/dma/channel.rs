@@ -11,19 +11,26 @@ use std::fmt::{self, Debug, Formatter};
 /// Channel id
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub(super) enum Id {
+    /// The macro block in (RAM to MDEC)
     #[default]
     MacroBlockIn = 0,
 
+    /// The macro block out (MDEC to RAM)
     MacroBlockOut = 1,
 
+    /// The GPU (lists + image data)
     Gpu = 2,
 
+    /// The CDROM (CDROM to RAM)
     Cdrom = 3,
 
+    /// The SPU (Sound data)
     Spu = 4,
 
+    /// PIO (Expansion Port)
     Pio = 5,
 
+    /// OTC (reverse clear OT) (GPU related)
     Otc = 6,
 }
 
@@ -34,7 +41,7 @@ pub(super) enum TransferDirection {
     #[default]
     ToRam = 0x0,
 
-    // From main RAM
+    /// From main RAM
     FromRam = 0x1,
 }
 
@@ -45,7 +52,7 @@ pub(super) enum MemoryAddressStep {
     #[default]
     Forward = 0x0,
 
-    // Backwards -4
+    /// Backwards -4
     Backward = 0x1,
 }
 
@@ -56,7 +63,7 @@ pub(super) enum ChoppingMode {
     #[default]
     Normal = 0x0,
 
-    // Chopping mode
+    /// Chopping mode
     Chopping = 0x1,
 }
 
@@ -67,7 +74,7 @@ pub(super) enum SyncMode {
     #[default]
     Immediately = 0x0,
 
-    // Sync blocks for DMA requests
+    /// Sync blocks for DMA requests
     SyncBlocks = 0x1,
 
     /// Linked-List mode
@@ -81,7 +88,7 @@ pub(super) enum Busy {
     #[default]
     Completed = 0x0,
 
-    // Busy
+    /// Busy
     Busy = 0x1,
 }
 
@@ -92,7 +99,7 @@ pub(super) enum Trigger {
     #[default]
     Normal = 0x0,
 
-    // Manual
+    /// Manual
     ManualStart = 0x1,
 }
 
@@ -103,7 +110,7 @@ pub(super) enum UnknownPause {
     #[default]
     No = 0x0,
 
-    // Paused
+    /// Paused
     Pause = 0x1,
 }
 
