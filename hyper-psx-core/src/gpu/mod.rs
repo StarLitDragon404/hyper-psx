@@ -393,6 +393,7 @@ impl Gpu {
             0xe3 => self.op_set_drawing_area_top_left(command),
             0xe4 => self.op_set_drawing_area_bottom_right(command),
             0xe5 => self.op_set_drawing_offset(command),
+            0xe6 => self.op_mask_bit_setting(command),
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }

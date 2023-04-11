@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::gpu::{DisplayAreaDrawing, Dither, Gpu, SemiTransparency, TexturePageColors};
+use crate::gpu::{
+    DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, SemiTransparency, TexturePageColors,
+};
 
 impl Gpu {
     /// GP0(E1h) - Draw Mode setting (aka "Texpage")
@@ -102,5 +104,28 @@ impl Gpu {
     pub(super) fn op_set_drawing_offset(&mut self, command: u32) {
         self.drawing_x_offset = (command & 0x7ff) as u16;
         self.drawing_y_offset = ((command >> 11) & 0x7ff) as u16;
+    }
+
+    /// GP0(E6h) - Mask Bit Setting
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e6h-mask-bit-setting>
+    pub(super) fn op_mask_bit_setting(&mut self, command: u32) {
+        let mask_drawing = (command & 0x1) as u8;
+        self.mask_drawing = match mask_drawing {
+            0 => MaskDrawing::No,
+            1 => MaskDrawing::Yes,
+            _ => unreachable!(),
+        };
+
+        let draw_pixels = ((command >> 1) & 0x1) as u8;
+        self.draw_pixels = match draw_pixels {
+            0 => DrawPixels::Always,
+            1 => DrawPixels::Unmasked,
+            _ => unreachable!(),
+        };
     }
 }
