@@ -318,8 +318,14 @@ pub(crate) struct Gpu {
     /// The horizontal display range start
     display_range_horizontal_start: u16,
 
-    /// The horizontal display range end
+    /// The vertical display range end
     display_range_horizontal_end: u16,
+
+    /// The horizontal display range start
+    display_range_vertical_start: u16,
+
+    /// The vertical display range end
+    display_range_vertical_end: u16,
 
     /// The gp0 command bytes
     gp0_bytes: [u8; 3],
@@ -372,6 +378,7 @@ impl Gpu {
             0x04 => self.op_dma_direction(command),
             0x05 => self.op_start_of_display_area_in_vram(command),
             0x06 => self.op_horizontal_display_range_on_screen(command),
+            0x07 => self.op_vertical_display_range_on_screen(command),
             _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }

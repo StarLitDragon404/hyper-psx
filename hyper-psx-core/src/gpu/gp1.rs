@@ -86,4 +86,16 @@ impl Gpu {
         self.display_range_horizontal_start = (command & 0xfff) as u16;
         self.display_range_horizontal_end = ((command & 0xfff000) >> 12) as u16;
     }
+
+    /// GP1(07h) - Vertical Display range (on Screen)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp107h-vertical-display-range-on-screen>
+    pub(super) fn op_vertical_display_range_on_screen(&mut self, command: u32) {
+        self.display_range_vertical_start = (command & 0x3ff) as u16;
+        self.display_range_vertical_end = ((command & 0xffc00) >> 12) as u16;
+    }
 }
