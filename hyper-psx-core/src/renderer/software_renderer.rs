@@ -6,7 +6,7 @@
 
 use crate::renderer::{color::Color, position::Position, window::Window, Renderer};
 
-use cgmath::{Vector2, Vector3};
+use cgmath::{InnerSpace, Vector2, Vector3};
 use pixels::{Pixels, SurfaceTexture};
 use thiserror::Error;
 
@@ -133,10 +133,48 @@ impl Renderer for SoftwareRenderer {
                     continue;
                 }
 
+                // Vector from Point to Vertices
+                let vector_0 = Vector3::new(positions[0].x() as f32, positions[0].y() as f32, 1.0)
+                    - Vector3::new(point.x, point.y, 1.0);
+                let vector_1 = Vector3::new(positions[1].x() as f32, positions[1].y() as f32, 1.0)
+                    - Vector3::new(point.x, point.y, 1.0);
+                let vector_2 = Vector3::new(positions[2].x() as f32, positions[2].y() as f32, 1.0)
+                    - Vector3::new(point.x, point.y, 1.0);
+
+                // Triangle Area
+                let area = (Vector3::new(positions[0].x() as f32, positions[0].y() as f32, 1.0)
+                    - Vector3::new(positions[1].x() as f32, positions[1].y() as f32, 1.0))
+                .cross(
+                    Vector3::new(positions[0].x() as f32, positions[0].y() as f32, 1.0)
+                        - Vector3::new(positions[2].x() as f32, positions[2].y() as f32, 1.0),
+                )
+                .magnitude();
+
+                // Point Areas
+                let area_0 = vector_1.cross(vector_2).magnitude() / area;
+                let area_1 = vector_2.cross(vector_0).magnitude() / area;
+                let area_2 = vector_0.cross(vector_1).magnitude() / area;
+
+                let color = (Vector3::new(
+                    colors[0].r() as f32,
+                    colors[0].g() as f32,
+                    colors[0].b() as f32,
+                ) * area_0 as f32)
+                    + (Vector3::new(
+                        colors[1].r() as f32,
+                        colors[1].g() as f32,
+                        colors[1].b() as f32,
+                    ) * area_1 as f32)
+                    + (Vector3::new(
+                        colors[2].r() as f32,
+                        colors[2].g() as f32,
+                        colors[2].b() as f32,
+                    ) * area_2 as f32);
+
                 let buffer = self.pixels.frame_mut();
-                buffer[((y as u32 * self.width + x as u32) * 4) as usize] = colors[0].r();
-                buffer[(((y as u32 * self.width + x as u32) * 4) + 1) as usize] = colors[0].g();
-                buffer[(((y as u32 * self.width + x as u32) * 4) + 2) as usize] = colors[0].b();
+                buffer[((y as u32 * self.width + x as u32) * 4) as usize] = color.x as u8;
+                buffer[(((y as u32 * self.width + x as u32) * 4) + 1) as usize] = color.y as u8;
+                buffer[(((y as u32 * self.width + x as u32) * 4) + 2) as usize] = color.z as u8;
             }
         }
     }

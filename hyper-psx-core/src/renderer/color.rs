@@ -7,9 +7,9 @@
 /// Represents a color
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
+    pub(crate) r: u8,
+    pub(crate) g: u8,
+    pub(crate) b: u8,
 }
 
 impl Color {

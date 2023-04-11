@@ -47,6 +47,27 @@ impl Gpu {
         self.renderer.draw_quad(positions, colors);
     }
 
+    /// GP0(30h) - Shaded three-point polygon, opaque
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gpu-render-polygon-commands>
+    pub(super) fn op_draw_shaded_three_point_polygon_opaque(&mut self) {
+        log::debug!(target: "gpu", "P0(30h) - Shaded three-point polygon, opaque");
+
+        let positions = [
+            Position::from_word(self.arguments[1]),
+            Position::from_word(self.arguments[3]),
+            Position::from_word(self.arguments[5]),
+        ];
+
+        let colors = [
+            Color::from_word(self.arguments[0] & 0x00ffffff),
+            Color::from_word(self.arguments[2] & 0x00ffffff),
+            Color::from_word(self.arguments[4] & 0x00ffffff),
+        ];
+
+        self.renderer.draw_triangle(positions, colors);
+    }
+
     /// GP0(A0h) - Copy Rectangle (CPU to VRAM)
     ///
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#cpu-to-vram-blitting-command-5-101>
