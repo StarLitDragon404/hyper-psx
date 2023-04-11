@@ -12,6 +12,7 @@ use crate::{
     bios::Bios,
     bus::{memory::Memory, ram::Ram, range::Range},
     dma::Dma,
+    gpu::Gpu,
 };
 
 /// The BUS component connecting everything
@@ -25,6 +26,9 @@ pub(crate) struct Bus {
 
     /// The DMA component,
     dma: Dma,
+
+    /// The GPU component,
+    gpu: Gpu,
 }
 
 impl Bus {
@@ -94,8 +98,14 @@ impl Bus {
     /// * `bios`: The BIOS component
     /// * `ram`: The RAM component
     /// * `dma`: The DMA component
-    pub(crate) fn new(bios: Bios, ram: Ram, dma: Dma) -> Self {
-        Self { bios, ram, dma }
+    /// * `gpu`: The GPU component
+    pub(crate) fn new(bios: Bios, ram: Ram, dma: Dma, gpu: Gpu) -> Self {
+        Self {
+            bios,
+            ram,
+            dma,
+            gpu,
+        }
     }
 
     /// Masks a virtual address to a phyiscal address
@@ -239,11 +249,7 @@ impl Bus {
         }
 
         if let Some(offset) = Self::GPU_REGISTERS_RANGE.contains(physical_adddress) {
-            log::warn!(
-                "Unhandled write to GPU Registers: {:#010x} ({:#x})",
-                address,
-                offset
-            );
+            self.gpu.write_u8(offset, value);
             return;
         }
 
@@ -464,20 +470,7 @@ impl Bus {
         }
 
         if let Some(offset) = Self::GPU_REGISTERS_RANGE.contains(physical_adddress) {
-            match offset {
-                4..=7 => {
-                    // Bit 28 - Ready to receive DMA Block
-                    return 0x1c000000u32.read_u8(offset - 0x4);
-                }
-                _ => {
-                    log::warn!(
-                        "Unhandled read from GPU Registers: {:#010x} ({:#x})",
-                        address,
-                        offset
-                    );
-                    return 0x00;
-                }
-            }
+            return self.gpu.read_u8(offset);
         }
 
         if let Some(_offset) = Self::MDEC_REGISTERS_RANGE.contains(physical_adddress) {
