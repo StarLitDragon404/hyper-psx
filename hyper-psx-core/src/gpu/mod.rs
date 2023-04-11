@@ -407,6 +407,7 @@ impl Gpu {
         let opcode = (command >> 24) as u8;
 
         match opcode {
+            0x00 => self.op_reset_gpu(command),
             0x01 => self.op_reset_command_buffer(command),
             0x02 => self.op_acknowledge_gpu_interrupt(command),
             0x03 => self.op_display_enable(command),

@@ -5,11 +5,86 @@
  */
 
 use crate::gpu::{
-    ColorDepth, DisplayEnabled, DmaDirection, Gpu, HorizontalResolution, InterruptRequest, Reverse,
-    VerticalInterlace, VerticalResolution, VideoMode,
+    ColorDepth, DisplayAreaDrawing, DisplayEnabled, Dither, DmaDirection, DrawPixels, Gpu,
+    HorizontalResolution, InterruptRequest, MaskDrawing, Reverse, SemiTransparency,
+    TexturePageColors, VerticalInterlace, VerticalResolution, VideoMode,
 };
 
 impl Gpu {
+    /// GP1(00h) - Reset GPU
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp100h-reset-gpu>
+    pub(super) fn op_reset_gpu(&mut self, _command: u32) {
+        // GP1(01h)
+        // TODO: Reset FIFO
+
+        // GP1(02h)
+        self.interrupt_request = InterruptRequest::Off;
+
+        // GP1(03h)
+        self.display_enabled = DisplayEnabled::Disabled;
+
+        // GP1(04h)
+        self.dma_direction = DmaDirection::Off;
+
+        // GP1(05h)
+        self.display_area_x_start_in_vram = 0;
+        self.display_area_y_start_in_vram = 0;
+
+        // GP1(06h)
+        self.display_range_horizontal_start = 0x200;
+        self.display_range_horizontal_end = 0x200 + 256 * 10;
+
+        // GP1(07h)
+        self.display_range_vertical_start = 0x010;
+        self.display_range_vertical_end = 0x010 + 240;
+
+        // GP1(08h)
+        self.vertical_resolution = VerticalResolution::S240;
+        self.video_mode = VideoMode::Hz60;
+        self.display_area_color_depth = ColorDepth::Bit15;
+        self.vertical_interlace = VerticalInterlace::Off;
+        self.horizontal_resolution = HorizontalResolution::S256;
+        self.reverse = Reverse::Normal;
+
+        // GP0(E1h)
+        self.texture_page_x_base = 0;
+        self.texture_page_y_base_1 = 0;
+        self.semi_transparency = SemiTransparency::First;
+        self.texture_page_colors = TexturePageColors::Bit4;
+        self.dither = Dither::Off;
+        self.display_area_drawing = DisplayAreaDrawing::Prohibited;
+        self.texture_page_y_base_2 = 0;
+        self.texture_rectangle_x_flip = false;
+        self.texture_rectangle_y_flip = false;
+
+        // GP0(E2h)
+        self.texture_window_x_mask = 0;
+        self.texture_window_y_mask = 0;
+        self.texture_window_x_offset = 0;
+        self.texture_window_y_offset = 0;
+
+        // GP0(E3h)
+        self.drawing_area_left = 0;
+        self.drawing_area_top = 0;
+
+        // GP0(E4h)
+        self.drawing_area_right = 0;
+        self.drawing_area_bottom = 0;
+
+        // GP0(E5h)
+        self.drawing_x_offset = 0;
+        self.drawing_y_offset = 0;
+
+        // GP0(E6h)
+        self.mask_drawing = MaskDrawing::No;
+        self.draw_pixels = DrawPixels::Always;
+    }
+
     /// GP1(01h) - Reset Command Buffer
     ///
     /// Arguments:
@@ -113,7 +188,13 @@ impl Gpu {
         let vertical_resolution = ((command >> 2) & 0x1) as u8;
         self.vertical_resolution = match vertical_resolution {
             0 => VerticalResolution::S240,
-            1 => VerticalResolution::S480,
+            1 => {
+                if ((command >> 5) & 0x1) as u8 != 0 {
+                    VerticalResolution::S480
+                } else {
+                    VerticalResolution::S240
+                }
+            }
             _ => unreachable!(),
         };
 
