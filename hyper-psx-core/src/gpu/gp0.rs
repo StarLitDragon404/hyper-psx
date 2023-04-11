@@ -13,6 +13,22 @@ use crate::{
 };
 
 impl Gpu {
+    /// GP0(00h) - NOP
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp000h-nop>
+    pub(super) fn op_nop(&mut self) {
+        log::debug!(target: "gpu", "GP0(00h) - NOP");
+    }
+
+    /// GP0(01h) - Clear Cache
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#clear-cache>
+    pub(super) fn op_clear_cache(&mut self) {
+        log::debug!(target: "gpu", "GP0(01h) - Clear Cache");
+
+        // TODO: Implement Cache
+    }
+
     /// GP0(28h) - Monochrome four-point polygon, opaque
     ///
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gpu-render-polygon-commands>

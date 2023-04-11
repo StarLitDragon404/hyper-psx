@@ -475,9 +475,8 @@ impl Gpu {
 
         let opcode = (self.arguments[0] >> 24) as u8;
         match opcode {
-            0x00 => {
-                // NOP
-            }
+            0x00 => self.op_nop(),
+            0x01 => self.op_clear_cache(),
             0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
             0xe1 => self.op_draw_mode_setting(),
             0xe2 => self.op_texture_window_setting(),
