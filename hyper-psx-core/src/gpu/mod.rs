@@ -331,6 +331,9 @@ impl Gpu {
         let opcode = (command >> 24) as u8;
 
         match opcode {
+            0x00 => {
+                // NOP
+            }
             0xe1 => self.op_draw_mode_setting(command),
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
