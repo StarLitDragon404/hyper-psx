@@ -79,4 +79,16 @@ impl Gpu {
         self.drawing_area_left = (command & 0x3ff) as u16;
         self.drawing_area_top = ((command >> 10) & 0x3ff) as u16;
     }
+
+    /// GP0(E4h) - Set Drawing Area bottom right (X2,Y2)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e4h-set-drawing-area-bottom-right-x2y2>
+    pub(super) fn op_set_drawing_area_bottom_right(&mut self, command: u32) {
+        self.drawing_area_right = (command & 0x3ff) as u16;
+        self.drawing_area_bottom = ((command >> 10) & 0x3ff) as u16;
+    }
 }
