@@ -339,6 +339,12 @@ pub(crate) struct Gpu {
     /// The texture window y offset
     texture_window_y_offset: u8,
 
+    /// The drawing most top corner
+    drawing_area_top: u16,
+
+    /// The drawing most left corner
+    drawing_area_left: u16,
+
     /// The gp0 command bytes
     gp0_bytes: [u8; 3],
 
@@ -372,6 +378,7 @@ impl Gpu {
             }
             0xe1 => self.op_draw_mode_setting(command),
             0xe2 => self.op_texture_window_setting(command),
+            0xe3 => self.op_set_drawing_area_top_left(command),
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }

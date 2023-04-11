@@ -67,4 +67,16 @@ impl Gpu {
         self.texture_window_x_offset = ((command >> 10) & 0x1f) as u8;
         self.texture_window_y_offset = ((command >> 15) & 0x1f) as u8;
     }
+
+    /// GP0(E3h) - Set Drawing Area top left (X1,Y1)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e3h-set-drawing-area-top-left-x1y1>
+    pub(super) fn op_set_drawing_area_top_left(&mut self, command: u32) {
+        self.drawing_area_left = (command & 0x3ff) as u16;
+        self.drawing_area_top = ((command >> 10) & 0x3ff) as u16;
+    }
 }
