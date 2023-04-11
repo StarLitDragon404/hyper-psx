@@ -7,6 +7,13 @@
 use crate::gpu::{DisplayAreaDrawing, Dither, Gpu, SemiTransparency, TexturePageColors};
 
 impl Gpu {
+    /// GP0(E1h) - Draw Mode setting (aka "Texpage")
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e1h-draw-mode-setting-aka-texpage>
     pub(super) fn op_draw_mode_setting(&mut self, command: u32) {
         self.texture_page_x_base = (command & 0xf) as u8;
         self.texture_page_y_base_1 = ((command >> 4) & 0x1) as u8;

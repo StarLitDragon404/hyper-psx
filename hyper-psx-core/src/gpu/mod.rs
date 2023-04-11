@@ -327,6 +327,11 @@ impl Gpu {
         }
     }
 
+    /// Executes a GP0 command
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command to execute
     pub(crate) fn gp0(&mut self, command: u32) {
         let opcode = (command >> 24) as u8;
 
@@ -338,6 +343,12 @@ impl Gpu {
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }
+
+    /// Executes a GP1 command
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command to execute
     fn gp1(&mut self, command: u32) {
         log::warn!("Unhandled GP1 Command: {:#010x}", command);
     }
