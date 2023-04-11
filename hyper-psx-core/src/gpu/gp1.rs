@@ -62,4 +62,16 @@ impl Gpu {
             _ => unreachable!(),
         };
     }
+
+    /// GP1(05h) - Start of Display area (in VRAM)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp105h-start-of-display-area-in-vram>
+    pub(super) fn op_start_of_display_area_in_vram(&mut self, command: u32) {
+        self.display_area_x_start_in_vram = (command & 0x3ff) as u16;
+        self.display_area_y_start_in_vram = ((command & 0x7fc00) >> 10) as u16;
+    }
 }

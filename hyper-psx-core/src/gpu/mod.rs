@@ -309,6 +309,12 @@ pub(crate) struct Gpu {
     /// If the texture should be flipped on the y-axis
     texture_rectangle_y_flip: bool,
 
+    /// The display area x start in VRAM
+    display_area_x_start_in_vram: u16,
+
+    /// The display area y start in VRAM
+    display_area_y_start_in_vram: u16,
+
     /// The gp0 command bytes
     gp0_bytes: [u8; 3],
 
@@ -358,6 +364,7 @@ impl Gpu {
             0x02 => self.op_acknowledge_gpu_interrupt(command),
             0x03 => self.op_display_enable(command),
             0x04 => self.op_dma_direction(command),
+            0x05 => self.op_start_of_display_area_in_vram(command),
             _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }
