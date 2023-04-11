@@ -47,6 +47,30 @@ impl Gpu {
         self.renderer.draw_quad(positions, colors);
     }
 
+    /// GP0(2ch) - Textured four-point polygon, opaque, texture-blending
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gpu-render-polygon-commands>
+    pub(super) fn op_draw_textured_four_point_polygon_opaque_texture_blending(&mut self) {
+        log::debug!(target: "gpu", "GP0(2ch) - Textured four-point polygon, opaque, texture-blending");
+
+        let positions = [
+            Position::from_word(self.arguments[1]),
+            Position::from_word(self.arguments[3]),
+            Position::from_word(self.arguments[5]),
+            Position::from_word(self.arguments[7]),
+        ];
+
+        let colors = [Color {
+            r: 255,
+            g: 0,
+            b: 255,
+        }; 4];
+
+        // TODO: Implement textures
+
+        self.renderer.draw_quad(positions, colors);
+    }
+
     /// GP0(30h) - Shaded three-point polygon, opaque
     ///
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gpu-render-polygon-commands>

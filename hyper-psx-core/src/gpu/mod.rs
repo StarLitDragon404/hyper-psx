@@ -467,6 +467,7 @@ impl Gpu {
             let opcode = (command >> 24) as u8;
             let bytes = match opcode {
                 0x28 => 5,
+                0x2c => 9,
                 0x30 => 6,
                 0x38 => 8,
                 0xa0 => 3,
@@ -489,6 +490,7 @@ impl Gpu {
                         0x00 => self.op_nop(),
                         0x01 => self.op_clear_cache(),
                         0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
+                        0x2c => self.op_draw_textured_four_point_polygon_opaque_texture_blending(),
                         0x30 => self.op_draw_shaded_three_point_polygon_opaque(),
                         0x38 => self.op_draw_shaded_four_point_polygon_opaque(),
                         0xa0 => self.op_copy_rectangle(),
