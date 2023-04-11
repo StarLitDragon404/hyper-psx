@@ -362,6 +362,10 @@ pub(crate) struct Gpu {
 
     /// The gp1 command bytes
     gp1_bytes: [u8; 3],
+
+    arguments: Vec<u32>,
+
+    argument_count: u8,
 }
 
 impl Gpu {
@@ -382,19 +386,49 @@ impl Gpu {
     ///
     /// * `command`: The command to execute
     pub(crate) fn gp0(&mut self, command: u32) {
-        let opcode = (command >> 24) as u8;
+        if self.argument_count == 0 {
+            let opcode = (command >> 24) as u8;
+            let bytes = match opcode {
+                0x00 => 1,
+                0x28 => 5, // 4 Vertices
+                0xe1 => 1,
+                0xe2 => 1,
+                0xe3 => 1,
+                0xe4 => 1,
+                0xe5 => 1,
+                0xe6 => 1,
+                _ => 1,
+            };
 
+            self.argument_count = bytes;
+            self.arguments.clear();
+        }
+
+        self.argument_count -= 1;
+        self.arguments.push(command);
+
+        if self.argument_count != 0 {
+            return;
+        }
+
+        let opcode = (self.arguments[0] >> 24) as u8;
         match opcode {
             0x00 => {
                 // NOP
             }
-            0xe1 => self.op_draw_mode_setting(command),
-            0xe2 => self.op_texture_window_setting(command),
-            0xe3 => self.op_set_drawing_area_top_left(command),
-            0xe4 => self.op_set_drawing_area_bottom_right(command),
-            0xe5 => self.op_set_drawing_offset(command),
-            0xe6 => self.op_mask_bit_setting(command),
-            _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
+            0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
+            0xe1 => self.op_draw_mode_setting(),
+            0xe2 => self.op_texture_window_setting(),
+            0xe3 => self.op_set_drawing_area_top_left(),
+            0xe4 => self.op_set_drawing_area_bottom_right(),
+            0xe5 => self.op_set_drawing_offset(),
+            0xe6 => self.op_mask_bit_setting(),
+            _ => unimplemented!(
+                "gp0 command {:#010x} with opcode {:#04x} ({:#010b})",
+                command,
+                opcode,
+                opcode
+            ),
         }
     }
 
@@ -416,7 +450,12 @@ impl Gpu {
             0x06 => self.op_horizontal_display_range_on_screen(command),
             0x07 => self.op_vertical_display_range_on_screen(command),
             0x08 => self.op_display_mode(command),
-            _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
+            _ => unimplemented!(
+                "gp1 command {:#010x} with opcode {:#04x} ({:#010b})",
+                command,
+                opcode,
+                opcode
+            ),
         }
     }
 }
