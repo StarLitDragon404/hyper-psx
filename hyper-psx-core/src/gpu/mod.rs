@@ -356,6 +356,7 @@ impl Gpu {
         match opcode {
             0x01 => self.op_reset_command_buffer(command),
             0x02 => self.op_acknowledge_gpu_interrupt(command),
+            0x03 => self.op_display_enable(command),
             _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }

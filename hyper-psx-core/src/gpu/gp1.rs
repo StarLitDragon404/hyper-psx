@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::gpu::{Gpu, InterruptRequest};
+use crate::gpu::{DisplayEnabled, Gpu, InterruptRequest};
 
 impl Gpu {
     /// GP1(01h) - Reset Command Buffer
@@ -27,5 +27,21 @@ impl Gpu {
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp102h-acknowledge-gpu-interrupt-irq1>
     pub(super) fn op_acknowledge_gpu_interrupt(&mut self, _command: u32) {
         self.interrupt_request = InterruptRequest::Off;
+    }
+
+    /// GP1(03h) - Display Enable
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp103h-display-enable>
+    pub(super) fn op_display_enable(&mut self, command: u32) {
+        let display_enabled = (command & 0x1) as u8;
+        self.display_enabled = match display_enabled {
+            0 => DisplayEnabled::Enabled,
+            1 => DisplayEnabled::Disabled,
+            _ => unreachable!(),
+        }
     }
 }
