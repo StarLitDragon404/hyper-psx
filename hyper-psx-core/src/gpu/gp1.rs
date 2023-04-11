@@ -74,4 +74,16 @@ impl Gpu {
         self.display_area_x_start_in_vram = (command & 0x3ff) as u16;
         self.display_area_y_start_in_vram = ((command & 0x7fc00) >> 10) as u16;
     }
+
+    /// GP1(06h) - Horizontal Display range (on Screen)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp106h-horizontal-display-range-on-screen>
+    pub(super) fn op_horizontal_display_range_on_screen(&mut self, command: u32) {
+        self.display_range_horizontal_start = (command & 0xfff) as u16;
+        self.display_range_horizontal_end = ((command & 0xfff000) >> 12) as u16;
+    }
 }
