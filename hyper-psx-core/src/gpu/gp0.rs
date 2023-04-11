@@ -91,4 +91,16 @@ impl Gpu {
         self.drawing_area_right = (command & 0x3ff) as u16;
         self.drawing_area_bottom = ((command >> 10) & 0x3ff) as u16;
     }
+
+    /// GP0(E5h) - Set Drawing Offset (X,Y)
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e5h-set-drawing-offset-xy>
+    pub(super) fn op_set_drawing_offset(&mut self, command: u32) {
+        self.drawing_x_offset = (command & 0x7ff) as u16;
+        self.drawing_y_offset = ((command >> 11) & 0x7ff) as u16;
+    }
 }
