@@ -217,7 +217,7 @@ impl Bus {
                     let channel = self.dma.channel_mut(channel_id);
 
                     if channel.ready() {
-                        channel.start_transfer(&mut self.ram);
+                        channel.start_transfer(&mut self.ram, &mut self.gpu);
                     }
                 }
                 _ => {}

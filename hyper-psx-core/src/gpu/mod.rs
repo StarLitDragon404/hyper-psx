@@ -299,6 +299,10 @@ pub(crate) struct Gpu {
 
     /// The drawing mode
     drawing_mode: DrawingMode,
+
+    gp0_bytes: [u8; 3],
+
+    gp1_bytes: [u8; 3],
 }
 
 impl Gpu {
@@ -312,26 +316,78 @@ impl Gpu {
             ..Default::default()
         }
     }
+
+    pub(crate) fn gp0(&mut self, command: u32) {
+        let opcode = (command >> 24) as u8;
+
+        match opcode {
+            _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
+        }
+    }
+    fn gp1(&mut self, command: u32) {
+        log::warn!("Unhandled GP1 Command: {:#010x}", command);
+    }
 }
 
 impl Memory for Gpu {
     fn write_u8(&mut self, offset: u32, value: u8) {
         match offset {
+            0x00 => {
+                self.gp0_bytes[0] = value;
+            }
+            0x01 => {
+                self.gp0_bytes[1] = value;
+            }
+            0x02 => {
+                self.gp0_bytes[2] = value;
+            }
+            0x03 => {
+                let byte_0 = self.gp0_bytes[0] as u32;
+                let byte_1 = self.gp0_bytes[1] as u32;
+                let byte_2 = self.gp0_bytes[2] as u32;
+                let byte_3 = value as u32;
+                let command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+
+                self.gp0(command);
+            }
+            0x04 => {
+                self.gp1_bytes[0] = value;
+            }
+            0x05 => {
+                self.gp1_bytes[1] = value;
+            }
+            0x06 => {
+                self.gp1_bytes[2] = value;
+            }
+            0x07 => {
+                let byte_0 = self.gp1_bytes[0] as u32;
+                let byte_1 = self.gp1_bytes[1] as u32;
+                let byte_2 = self.gp1_bytes[2] as u32;
+                let byte_3 = value as u32;
+                let command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
+
+                self.gp1(command);
+            }
             _ => unreachable!("write to gpu at {:#04x} with value {:#04x}", offset, value),
         }
     }
 
     fn read_u8(&self, offset: u32) -> u8 {
-        let mut value = 0;
-
         match offset {
+            0x00..=0x03 => {
+                // TODO: Implement GPUREAD regsiter
+                0x00
+            }
             0x04 => {
+                let mut value = 0;
                 value |= self.texture_page_x_base;
                 value |= self.texture_page_y_base_1 << 4;
                 value |= (self.semi_transparency as u8) << 5;
                 value |= (self.texture_page_colors as u8 & 0b00000001) << 7;
+                value
             }
             0x05 => {
+                let mut value = 0;
                 value |= (self.texture_page_colors as u8 & 0b00000010) >> 1;
                 value |= (self.dither as u8) << 1;
                 value |= (self.display_area_drawing as u8) << 2;
@@ -340,8 +396,10 @@ impl Memory for Gpu {
                 value |= (self.interlace as u8) << 5;
                 value |= (self.reverse as u8) << 6;
                 value |= self.texture_page_y_base_2 << 7;
+                value
             }
             0x06 => {
+                let mut value = 0;
                 value |= match self.horizontal_resolution {
                     HorizontalResolution::S256 => 0b00000000,
                     HorizontalResolution::S320 => 0b00000010,
@@ -354,8 +412,10 @@ impl Memory for Gpu {
                 value |= (self.display_area_color_depth as u8) << 5;
                 value |= (self.vertical_interlace as u8) << 6;
                 value |= (self.display_enabled as u8) << 7;
+                value
             }
             0x07 => {
+                let mut value = 0;
                 value |= self.interrupt_request as u8;
                 value |= match self.dma_direction {
                     DmaDirection::Off => 0,
@@ -368,10 +428,9 @@ impl Memory for Gpu {
                 value |= (self.ready_receive_dma_block as u8) << 4;
                 value |= (self.dma_direction as u8) << 5;
                 value |= (self.drawing_mode as u8) << 7;
+                value
             }
             _ => unreachable!("read from gpu at {:#04x}", offset,),
-        };
-
-        value
+        }
     }
 }

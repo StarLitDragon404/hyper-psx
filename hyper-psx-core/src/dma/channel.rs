@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::bus::{memory::Memory, ram::Ram};
+use crate::{
+    bus::{memory::Memory, ram::Ram},
+    gpu::Gpu,
+};
 
 use std::fmt::{self, Debug, Formatter};
 
@@ -195,16 +198,16 @@ impl Channel {
     }
 
     /// Starts the block or linked list transfer for the DMA
-    pub(crate) fn start_transfer(&mut self, ram: &mut Ram) {
+    pub(crate) fn start_transfer(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
         match self.sync_mode {
-            SyncMode::Immediately => self.transfer_block(ram),
-            SyncMode::SyncBlocks => self.transfer_block(ram),
-            SyncMode::LinkedList => self.transfer_linked_list(ram),
+            SyncMode::Immediately => self.transfer_block(ram, gpu),
+            SyncMode::SyncBlocks => self.transfer_block(ram, gpu),
+            SyncMode::LinkedList => self.transfer_linked_list(ram, gpu),
         }
     }
 
     /// Starts a block transfer
-    fn transfer_block(&mut self, ram: &mut Ram) {
+    fn transfer_block(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
         log::debug!("Transfer Block: {:?}", self);
 
         let mut block_count = self.block_size;
@@ -249,10 +252,9 @@ impl Channel {
                         let byte_1 = ram.read_u8(address + 1) as u32;
                         let byte_2 = ram.read_u8(address + 2) as u32;
                         let byte_3 = ram.read_u8(address + 3) as u32;
+                        let command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
 
-                        let _command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
-
-                        // TODO: Handle GPU Command
+                        gpu.gp0(command);
                     }
                     _ => unimplemented!("immediate transfer from channel '{:?}' from ram", self.id),
                 },
@@ -266,7 +268,7 @@ impl Channel {
     }
 
     /// Starts a linked list transfer
-    fn transfer_linked_list(&mut self, ram: &mut Ram) {
+    fn transfer_linked_list(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
         log::debug!("Transfer Linked List: {:?}", self);
 
         let mut address = self.base_address;
@@ -292,10 +294,9 @@ impl Channel {
                 let byte_1 = ram.read_u8(address + 1) as u32;
                 let byte_2 = ram.read_u8(address + 2) as u32;
                 let byte_3 = ram.read_u8(address + 3) as u32;
+                let command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
 
-                let _command = (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0;
-
-                // TODO: Handle GPU Command
+                gpu.gp0(command);
 
                 node_size -= 1;
             }
