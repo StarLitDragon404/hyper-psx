@@ -7,7 +7,9 @@
 mod gp0;
 mod gp1;
 
-use crate::bus::memory::Memory;
+use crate::{bus::memory::Memory, renderer::Renderer};
+
+use std::fmt::{self, Debug, Formatter};
 
 /// The semi transparency mode
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -232,7 +234,6 @@ pub(super) enum DrawingMode {
 }
 
 /// The GPU component
-#[derive(Clone, Debug, Default)]
 pub(crate) struct Gpu {
     /// The texture page x base
     texture_page_x_base: u8,
@@ -363,21 +364,82 @@ pub(crate) struct Gpu {
     /// The gp1 command bytes
     gp1_bytes: [u8; 3],
 
+    /// The command arguments
     arguments: Vec<u32>,
 
+    /// The remaining arguments count
     argument_count: u8,
+
+    /// The renderer
+    renderer: Box<dyn Renderer>,
 }
 
 impl Gpu {
     /// Creates a new GPU component
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(renderer: Box<dyn Renderer>) -> Self {
         Self {
+            texture_page_x_base: 0,
+            texture_page_y_base_1: 0,
+            semi_transparency: SemiTransparency::default(),
+            texture_page_colors: TexturePageColors::default(),
+            dither: Dither::default(),
+            display_area_drawing: DisplayAreaDrawing::default(),
+            mask_drawing: MaskDrawing::default(),
+            draw_pixels: DrawPixels::default(),
+            interlace: Interlace::default(),
+            reverse: Reverse::default(),
+            texture_page_y_base_2: 0,
+            horizontal_resolution: HorizontalResolution::default(),
+            vertical_resolution: VerticalResolution::default(),
+            video_mode: VideoMode::default(),
+            display_area_color_depth: ColorDepth::default(),
+            vertical_interlace: VerticalInterlace::default(),
             display_enabled: DisplayEnabled::Disabled,
+            interrupt_request: InterruptRequest::default(),
             ready_receive_cmd_word: Ready::Ready,
             ready_send_vram_to_cpu: Ready::Ready,
             ready_receive_dma_block: Ready::Ready,
-            ..Default::default()
+            dma_direction: DmaDirection::default(),
+            drawing_mode: DrawingMode::default(),
+            texture_rectangle_x_flip: false,
+            texture_rectangle_y_flip: false,
+            display_area_x_start_in_vram: 0,
+            display_area_y_start_in_vram: 0,
+            display_range_horizontal_start: 0,
+            display_range_horizontal_end: 0,
+            display_range_vertical_start: 0,
+            display_range_vertical_end: 0,
+            texture_window_x_mask: 0,
+            texture_window_y_mask: 0,
+            texture_window_x_offset: 0,
+            texture_window_y_offset: 0,
+            drawing_area_top: 0,
+            drawing_area_left: 0,
+            drawing_area_bottom: 0,
+            drawing_area_right: 0,
+            drawing_x_offset: 0,
+            drawing_y_offset: 0,
+            gp0_bytes: [0; 3],
+            gp1_bytes: [0; 3],
+            arguments: Vec::new(),
+            argument_count: 0,
+            renderer,
         }
+    }
+
+    /// Renders the current VRAM
+    pub(crate) fn render(&mut self) {
+        self.renderer.render();
+    }
+
+    /// Resizes the current frame buffer
+    ///
+    /// Arguments:
+    ///
+    /// * `width`: The new frame buffer width
+    /// * `height`: The new frame buffer height
+    pub(crate) fn resize(&mut self, width: u32, height: u32) {
+        self.renderer.resize(width, height);
     }
 
     /// Executes a GP0 command
@@ -538,7 +600,7 @@ impl Memory for Gpu {
                     HorizontalResolution::S512 => 0b00000100,
                     HorizontalResolution::S640 => 0b00000110,
                 };
-                value |= (self.vertical_resolution as u8) << 3;
+                //value |= (self.vertical_resolution as u8) << 3;
                 value |= (self.video_mode as u8) << 4;
                 value |= (self.display_area_color_depth as u8) << 5;
                 value |= (self.vertical_interlace as u8) << 6;
@@ -563,5 +625,75 @@ impl Memory for Gpu {
             }
             _ => unreachable!("read from gpu at {:#04x}", offset,),
         }
+    }
+}
+
+impl Debug for Gpu {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        fmt.debug_struct("Gpu")
+            .field("texture_page_x_base", &self.texture_page_x_base)
+            .field("texture_page_y_base_1", &self.texture_page_y_base_1)
+            .field("semi_transparency", &self.semi_transparency)
+            .field("texture_page_colors", &self.texture_page_colors)
+            .field("dither", &self.dither)
+            .field("display_area_drawing", &self.display_area_drawing)
+            .field("mask_drawing", &self.mask_drawing)
+            .field("draw_pixels", &self.draw_pixels)
+            .field("interlace", &self.interlace)
+            .field("reverse", &self.reverse)
+            .field("texture_page_y_base_2", &self.texture_page_y_base_2)
+            .field("horizontal_resolution", &self.horizontal_resolution)
+            .field("vertical_resolution", &self.vertical_resolution)
+            .field("video_mode", &self.video_mode)
+            .field("display_area_color_depth", &self.display_area_color_depth)
+            .field("vertical_interlace", &self.vertical_interlace)
+            .field("display_enabled", &self.display_enabled)
+            .field("interrupt_request", &self.interrupt_request)
+            .field("ready_receive_cmd_word", &self.ready_receive_cmd_word)
+            .field("ready_send_vram_to_cpu", &self.ready_send_vram_to_cpu)
+            .field("ready_receive_dma_block", &self.ready_receive_dma_block)
+            .field("dma_direction", &self.dma_direction)
+            .field("drawing_mode", &self.drawing_mode)
+            .field("texture_rectangle_x_flip", &self.texture_rectangle_x_flip)
+            .field("texture_rectangle_y_flip", &self.texture_rectangle_y_flip)
+            .field(
+                "display_area_x_start_in_vram",
+                &self.display_area_x_start_in_vram,
+            )
+            .field(
+                "display_area_y_start_in_vram",
+                &self.display_area_y_start_in_vram,
+            )
+            .field(
+                "display_range_horizontal_start",
+                &self.display_range_horizontal_start,
+            )
+            .field(
+                "display_range_horizontal_end",
+                &self.display_range_horizontal_end,
+            )
+            .field(
+                "display_range_vertical_start",
+                &self.display_range_vertical_start,
+            )
+            .field(
+                "display_range_vertical_end",
+                &self.display_range_vertical_end,
+            )
+            .field("texture_window_x_mask", &self.texture_window_x_mask)
+            .field("texture_window_y_mask", &self.texture_window_y_mask)
+            .field("texture_window_x_offset", &self.texture_window_x_offset)
+            .field("texture_window_y_offset", &self.texture_window_y_offset)
+            .field("drawing_area_top", &self.drawing_area_top)
+            .field("drawing_area_left", &self.drawing_area_left)
+            .field("drawing_area_bottom", &self.drawing_area_bottom)
+            .field("drawing_area_right", &self.drawing_area_right)
+            .field("drawing_x_offset", &self.drawing_x_offset)
+            .field("drawing_y_offset", &self.drawing_y_offset)
+            .field("gp0_bytes", &self.gp0_bytes)
+            .field("gp1_bytes", &self.gp1_bytes)
+            .field("arguments", &self.arguments)
+            .field("argument_count", &self.argument_count)
+            .finish()
     }
 }

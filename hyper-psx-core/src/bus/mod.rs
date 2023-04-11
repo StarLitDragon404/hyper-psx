@@ -16,7 +16,7 @@ use crate::{
 };
 
 /// The BUS component connecting everything
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) struct Bus {
     /// The BIOS component
     bios: Bios,
@@ -574,5 +574,20 @@ impl Bus {
         let byte_3 = self.read_u8(address + 3) as u32;
 
         (byte_3 << 24) | (byte_2 << 16) | (byte_1 << 8) | byte_0
+    }
+
+    /// Renders the current VRAM
+    pub(crate) fn render(&mut self) {
+        self.gpu.render();
+    }
+
+    /// Resizes the current frame buffer
+    ///
+    /// Arguments:
+    ///
+    /// * `width`: The new frame buffer width
+    /// * `height`: The new frame buffer height
+    pub(crate) fn resize(&mut self, width: u32, height: u32) {
+        self.gpu.resize(width, height);
     }
 }

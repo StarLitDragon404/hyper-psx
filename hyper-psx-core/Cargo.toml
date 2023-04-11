@@ -12,3 +12,7 @@ edition = "2021"
 [dependencies]
 log = "0.4"
 thiserror = "1.0"
+
+cgmath = "0.18"
+pixels = "0.12"
+winit = "0.28"

@@ -4,8 +4,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::gpu::{
-    DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, SemiTransparency, TexturePageColors,
+use crate::{
+    gpu::{
+        DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, SemiTransparency,
+        TexturePageColors,
+    },
+    renderer::{color::Color, position::Position},
 };
 
 impl Gpu {
@@ -15,7 +19,16 @@ impl Gpu {
     pub(super) fn op_draw_monochrome_four_point_polygon_opaque(&mut self) {
         log::debug!(target: "gpu", "GP0(28h) - Monochrome four-point polygon, opaque");
 
-        // TODO: Implemenet draw
+        let positions = [
+            Position::from_word(self.arguments[1]),
+            Position::from_word(self.arguments[2]),
+            Position::from_word(self.arguments[3]),
+            Position::from_word(self.arguments[4]),
+        ];
+
+        let colors = [Color::from_word(self.arguments[0] & 0x00ffffff); 4];
+
+        self.renderer.draw_quad(positions, colors);
     }
 
     /// GP0(E1h) - Draw Mode setting (aka "Texpage")

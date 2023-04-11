@@ -24,7 +24,7 @@ use crate::{
 };
 
 /// The CPU component
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) struct Cpu {
     /// The 32 general purpose registers
     registers: [u32; 32],
@@ -223,6 +223,21 @@ impl Cpu {
                 self.raise_exception(instruction, Exception::Ri)
             }
         }
+    }
+
+    /// Renders the current VRAM
+    pub(crate) fn render(&mut self) {
+        self.bus.render();
+    }
+
+    /// Resizes the current frame buffer
+    ///
+    /// Arguments:
+    ///
+    /// * `width`: The new frame buffer width
+    /// * `height`: The new frame buffer height
+    pub(crate) fn resize(&mut self, width: u32, height: u32) {
+        self.bus.resize(width, height);
     }
 
     /// Branches to an offset
