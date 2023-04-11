@@ -5,6 +5,7 @@
  */
 
 mod gp0;
+mod gp1;
 
 use crate::bus::memory::Memory;
 
@@ -350,7 +351,12 @@ impl Gpu {
     ///
     /// * `command`: The command to execute
     fn gp1(&mut self, command: u32) {
-        log::warn!("Unhandled GP1 Command: {:#010x}", command);
+        let opcode = (command >> 24) as u8;
+
+        match opcode {
+            0x01 => self.op_reset_command_buffer(command),
+            _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
+        }
     }
 }
 
