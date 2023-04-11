@@ -21,7 +21,8 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLL {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -49,7 +50,8 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SRL {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -77,7 +79,8 @@ impl Cpu {
 
         let t = self.register(rt) as i32;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SRA {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -106,7 +109,8 @@ impl Cpu {
         let t = self.register(rt);
         let s = self.register(rs);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLLV {}, {}, {}",
             self.n,
             instruction.1,
@@ -135,7 +139,8 @@ impl Cpu {
         let t = self.register(rt);
         let s = self.register(rs);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SRLV {}, {}, {}",
             self.n,
             instruction.1,
@@ -164,7 +169,8 @@ impl Cpu {
         let t = self.register(rt) as i32;
         let s = self.register(rs);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLLV {}, {}, {}",
             self.n,
             instruction.1,
@@ -192,7 +198,7 @@ impl Cpu {
     pub(super) fn op_jr(&mut self, instruction: Instruction) {
         let rs = instruction.rs();
 
-        log::trace!("{}: {:#010x}: JR {}", self.n, instruction.1, rs);
+        log::debug!(target: "cpu", "{}: {:#010x}: JR {}", self.n, instruction.1, rs);
 
         let address = self.register(rs);
 
@@ -214,7 +220,7 @@ impl Cpu {
         let rs = instruction.rs();
         let rd = instruction.rd();
 
-        log::trace!("{}: {:#010x}: JALR {}", self.n, instruction.1, rs);
+        log::debug!(target: "cpu", "{}: {:#010x}: JALR {}", self.n, instruction.1, rs);
 
         let address = self.register(rs);
 
@@ -234,7 +240,7 @@ impl Cpu {
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=288>
     pub(super) fn op_syscall(&mut self, instruction: Instruction) {
-        log::trace!("{}: {:#010x}: SYSCALL", self.n, instruction.1);
+        log::debug!(target: "cpu", "{}: {:#010x}: SYSCALL", self.n, instruction.1);
 
         self.raise_exception(instruction, Exception::Syscall);
     }
@@ -251,7 +257,7 @@ impl Cpu {
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=233>
     pub(super) fn op_break(&mut self, instruction: Instruction) {
-        log::trace!("{}: {:#010x}: BREAK", self.n, instruction.1);
+        log::debug!(target: "cpu", "{}: {:#010x}: BREAK", self.n, instruction.1);
 
         self.raise_exception(instruction, Exception::Bp);
     }
@@ -266,7 +272,7 @@ impl Cpu {
     pub(super) fn op_mfhi(&mut self, instruction: Instruction) {
         let rd = instruction.rd();
 
-        log::trace!("{}: {:#010x}: MFHI {}", self.n, instruction.1, rd);
+        log::debug!(target: "cpu", "{}: {:#010x}: MFHI {}", self.n, instruction.1, rd);
 
         let result = self.hi;
 
@@ -283,7 +289,7 @@ impl Cpu {
     pub(super) fn op_mthi(&mut self, instruction: Instruction) {
         let rs = instruction.rs();
 
-        log::trace!("{}: {:#010x}: MTHI {}", self.n, instruction.1, rs);
+        log::debug!(target: "cpu", "{}: {:#010x}: MTHI {}", self.n, instruction.1, rs);
 
         let result = self.register(rs);
 
@@ -300,7 +306,7 @@ impl Cpu {
     pub(super) fn op_mflo(&mut self, instruction: Instruction) {
         let rd = instruction.rd();
 
-        log::trace!("{}: {:#010x}: MFLO {}", self.n, instruction.1, rd);
+        log::debug!(target: "cpu", "{}: {:#010x}: MFLO {}", self.n, instruction.1, rd);
 
         let result = self.lo;
 
@@ -317,7 +323,7 @@ impl Cpu {
     pub(super) fn op_mtlo(&mut self, instruction: Instruction) {
         let rs = instruction.rs();
 
-        log::trace!("{}: {:#010x}: MTLO {}", self.n, instruction.1, rs);
+        log::debug!(target: "cpu", "{}: {:#010x}: MTLO {}", self.n, instruction.1, rs);
 
         let result = self.register(rs);
 
@@ -338,7 +344,7 @@ impl Cpu {
         let s = self.register(rs) as i32 as i64;
         let t = self.register(rt) as i32 as i64;
 
-        log::debug!("{}: {:#010x}: MULT {}, {}", self.n, instruction.1, rs, rt);
+        log::debug!(target: "cpu", "{}: {:#010x}: MULT {}, {}", self.n, instruction.1, rs, rt);
 
         let result = (s * t) as u64;
 
@@ -360,7 +366,7 @@ impl Cpu {
         let s = self.register(rs) as u64;
         let t = self.register(rt) as u64;
 
-        log::trace!("{}: {:#010x}: MULTU {}, {}", self.n, instruction.1, rs, rt);
+        log::debug!(target: "cpu", "{}: {:#010x}: MULTU {}, {}", self.n, instruction.1, rs, rt);
 
         let result = s * t;
 
@@ -387,7 +393,7 @@ impl Cpu {
         // The number to multiply with or to divide with
         let t = self.register(rt) as i32;
 
-        log::trace!("{}: {:#010x}: DIV {}, {}", self.n, instruction.1, rs, rt);
+        log::debug!(target: "cpu", "{}: {:#010x}: DIV {}, {}", self.n, instruction.1, rs, rt);
 
         if t == 0 {
             // Division by zero
@@ -422,7 +428,7 @@ impl Cpu {
         // The number to multiply with or to divide with
         let t = self.register(rt);
 
-        log::trace!("{}: {:#010x}: DIVU {}, {}", self.n, instruction.1, rs, rt);
+        log::debug!(target: "cpu", "{}: {:#010x}: DIVU {}, {}", self.n, instruction.1, rs, rt);
 
         if t == 0 {
             // Division by zero
@@ -453,7 +459,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let t = self.register(rt) as i32;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ADD {}, {}, {}",
             self.n,
             instruction.1,
@@ -487,7 +494,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ADDU {}, {}, {}",
             self.n,
             instruction.1,
@@ -516,7 +524,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let t = self.register(rt) as i32;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SUB {}, {}, {}",
             self.n,
             instruction.1,
@@ -550,7 +559,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SUBU {}, {}, {}",
             self.n,
             instruction.1,
@@ -579,7 +589,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: AND {}, {}, {}",
             self.n,
             instruction.1,
@@ -608,7 +619,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: OR {}, {}, {}",
             self.n,
             instruction.1,
@@ -637,7 +649,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: XOR {}, {}, {}",
             self.n,
             instruction.1,
@@ -666,7 +679,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: NOR {}, {}, {}",
             self.n,
             instruction.1,
@@ -695,7 +709,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let t = self.register(rt) as i32;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLT {}, {}, {}",
             self.n,
             instruction.1,
@@ -724,7 +739,8 @@ impl Cpu {
         let s = self.register(rs);
         let t = self.register(rt);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLTU {}, {}, {}",
             self.n,
             instruction.1,

@@ -21,7 +21,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BLTZ {}, {}",
             self.n,
             instruction.1,
@@ -48,7 +49,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BGEZ {}, {}",
             self.n,
             instruction.1,
@@ -75,7 +77,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BLTZAL {}, {}",
             self.n,
             instruction.1,
@@ -104,7 +107,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BGEZ {}, {}",
             self.n,
             instruction.1,

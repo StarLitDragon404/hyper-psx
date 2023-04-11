@@ -32,7 +32,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let _address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LWC2 {}, {}({})",
             self.n,
             instruction.1,
@@ -69,7 +70,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let _address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SWC2 {}, {}({})",
             self.n,
             instruction.1,

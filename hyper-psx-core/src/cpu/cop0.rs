@@ -24,7 +24,7 @@ impl Cpu {
 
         let d = self.cop0_register(rd);
 
-        log::trace!("{}: {:#010x}: MFC0 {}, {}", self.n, instruction.1, rt, rd);
+        log::debug!(target: "cpu", "{}: {:#010x}: MFC0 {}, {}", self.n, instruction.1, rt, rd);
 
         self.set_register(rt, d);
     }
@@ -46,7 +46,7 @@ impl Cpu {
 
         let t = self.register(rt);
 
-        log::trace!("{}: {:#010x}: MTC0 {}, {}", self.n, instruction.1, rt, rd);
+        log::debug!(target: "cpu", "{}: {:#010x}: MTC0 {}, {}", self.n, instruction.1, rt, rd);
 
         self.set_cop0_register(rd, t);
     }
@@ -65,7 +65,7 @@ impl Cpu {
     pub(super) fn op_rfe(&mut self, instruction: Instruction) {
         let mut sr = self.cop0_register(Cop0Register::Sr);
 
-        log::trace!("{}: {:#010x}: RFE", self.n, instruction.1);
+        log::debug!(target: "cpu", "{}: {:#010x}: RFE", self.n, instruction.1);
 
         let mode = sr & 0x3f;
         sr &= !0x3f;

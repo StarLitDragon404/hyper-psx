@@ -25,7 +25,7 @@ impl Cpu {
 
         let address = target << 2 | (self.pc & 0xf0000000);
 
-        log::trace!("{}: {:#010x}: J {:#x}", self.n, instruction.1, address);
+        log::debug!(target: "cpu", "{}: {:#010x}: J {:#x}", self.n, instruction.1, address);
 
         self.branch_delay_pc = Some(address);
     }
@@ -42,7 +42,7 @@ impl Cpu {
 
         let address = target << 2 | (self.pc & 0xf0000000);
 
-        log::trace!("{}: {:#010x}: JAL {:#x}", self.n, instruction.1, address);
+        log::debug!(target: "cpu", "{}: {:#010x}: JAL {:#x}", self.n, instruction.1, address);
 
         self.set_register(Register::Ra, self.pc + 4);
         self.branch_delay_pc = Some(address);
@@ -64,7 +64,8 @@ impl Cpu {
         let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BEQ {}, {}, {}",
             self.n,
             instruction.1,
@@ -94,7 +95,8 @@ impl Cpu {
         let t = self.register(rt);
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BNE {}, {}, {}",
             self.n,
             instruction.1,
@@ -122,7 +124,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BGTZ {}, {}",
             self.n,
             instruction.1,
@@ -149,7 +152,8 @@ impl Cpu {
         let s = self.register(rs) as i32;
         let address_offset = offset.sign_extend() << 2;
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: BGTZ {}, {}",
             self.n,
             instruction.1,
@@ -181,7 +185,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ADDI {}, {}, {}",
             self.n,
             instruction.1,
@@ -215,7 +220,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ADDIU {}, {}, {}",
             self.n,
             instruction.1,
@@ -244,7 +250,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLTI {}, {}, {}",
             self.n,
             instruction.1,
@@ -273,7 +280,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.sign_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SLTIU {}, {}, {}",
             self.n,
             instruction.1,
@@ -302,7 +310,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.zero_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ANDI {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -331,7 +340,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.zero_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: ORI {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -360,7 +370,8 @@ impl Cpu {
         let s = self.register(rs);
         let value = imm.zero_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: XORI {}, {}, {:#x}",
             self.n,
             instruction.1,
@@ -387,7 +398,8 @@ impl Cpu {
 
         let value = imm.zero_extend();
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LUI {}, {:#x}",
             self.n,
             instruction.1,
@@ -422,7 +434,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LB {}, {}({})",
             self.n,
             instruction.1,
@@ -468,7 +481,8 @@ impl Cpu {
         let aligned_address = address & !3;
         let aligned_word = self.bus.read_u32(aligned_address);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LWL {}, {}({})",
             self.n,
             instruction.1,
@@ -510,7 +524,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LH {}, {}({})",
             self.n,
             instruction.1,
@@ -556,7 +571,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LW {}, {}({})",
             self.n,
             instruction.1,
@@ -602,7 +618,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LBU {}, {}({})",
             self.n,
             instruction.1,
@@ -643,7 +660,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LHU {}, {}({})",
             self.n,
             instruction.1,
@@ -694,7 +712,8 @@ impl Cpu {
         let aligned_address = address & !3;
         let aligned_word = self.bus.read_u32(aligned_address);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: LWR {}, {}({})",
             self.n,
             instruction.1,
@@ -738,7 +757,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SB {}, {}({})",
             self.n,
             instruction.1,
@@ -781,7 +801,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SH {}, {}({})",
             self.n,
             instruction.1,
@@ -833,7 +854,8 @@ impl Cpu {
 
         let value = self.bus.read_u32(aligned_address);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SWL {}, {}({})",
             self.n,
             instruction.1,
@@ -877,7 +899,8 @@ impl Cpu {
         let address_offset = offset.sign_extend();
         let address = self.register(base).wrapping_add(address_offset);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SW {}, {}({})",
             self.n,
             instruction.1,
@@ -929,7 +952,8 @@ impl Cpu {
 
         let value = self.bus.read_u32(aligned_address);
 
-        log::trace!(
+        log::debug!(
+            target: "cpu",
             "{}: {:#010x}: SWL {}, {}({})",
             self.n,
             instruction.1,
