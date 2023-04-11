@@ -72,7 +72,7 @@ impl Gpu {
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp105h-start-of-display-area-in-vram>
     pub(super) fn op_start_of_display_area_in_vram(&mut self, command: u32) {
         self.display_area_x_start_in_vram = (command & 0x3ff) as u16;
-        self.display_area_y_start_in_vram = ((command & 0x7fc00) >> 10) as u16;
+        self.display_area_y_start_in_vram = ((command >> 10) & 0x3ff) as u16;
     }
 
     /// GP1(06h) - Horizontal Display range (on Screen)
@@ -84,7 +84,7 @@ impl Gpu {
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp106h-horizontal-display-range-on-screen>
     pub(super) fn op_horizontal_display_range_on_screen(&mut self, command: u32) {
         self.display_range_horizontal_start = (command & 0xfff) as u16;
-        self.display_range_horizontal_end = ((command & 0xfff000) >> 12) as u16;
+        self.display_range_horizontal_end = ((command >> 12) & 0xfff) as u16;
     }
 
     /// GP1(07h) - Vertical Display range (on Screen)
@@ -96,6 +96,6 @@ impl Gpu {
     /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp107h-vertical-display-range-on-screen>
     pub(super) fn op_vertical_display_range_on_screen(&mut self, command: u32) {
         self.display_range_vertical_start = (command & 0x3ff) as u16;
-        self.display_range_vertical_end = ((command & 0xffc00) >> 12) as u16;
+        self.display_range_vertical_end = ((command >> 10) & 0x3ff) as u16;
     }
 }
