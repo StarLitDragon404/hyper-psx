@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+mod gp0;
+
 use crate::bus::memory::Memory;
 
 /// The semi transparency mode
@@ -300,8 +302,16 @@ pub(crate) struct Gpu {
     /// The drawing mode
     drawing_mode: DrawingMode,
 
+    /// If the texture should be flipped on the x-axis
+    texture_rectangle_x_flip: bool,
+
+    /// If the texture should be flipped on the y-axis
+    texture_rectangle_y_flip: bool,
+
+    /// The gp0 command bytes
     gp0_bytes: [u8; 3],
 
+    /// The gp1 command bytes
     gp1_bytes: [u8; 3],
 }
 
@@ -321,6 +331,7 @@ impl Gpu {
         let opcode = (command >> 24) as u8;
 
         match opcode {
+            0xe1 => self.op_draw_mode_setting(command),
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }
