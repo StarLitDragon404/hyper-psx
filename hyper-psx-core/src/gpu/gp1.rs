@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::gpu::{DisplayEnabled, Gpu, InterruptRequest};
+use crate::gpu::{DisplayEnabled, DmaDirection, Gpu, InterruptRequest};
 
 impl Gpu {
     /// GP1(01h) - Reset Command Buffer
@@ -43,5 +43,23 @@ impl Gpu {
             1 => DisplayEnabled::Disabled,
             _ => unreachable!(),
         }
+    }
+
+    /// GP1(04h) - DMA Direction / Data Request
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp104h-dma-direction-data-request>
+    pub(super) fn op_dma_direction(&mut self, command: u32) {
+        let dma_direction = (command & 0x1) as u8;
+        self.dma_direction = match dma_direction {
+            0 => DmaDirection::Off,
+            1 => DmaDirection::Fifo,
+            2 => DmaDirection::CpuToGpu,
+            3 => DmaDirection::GpuToCpu,
+            _ => unreachable!(),
+        };
     }
 }
