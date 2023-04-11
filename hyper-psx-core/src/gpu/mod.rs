@@ -327,6 +327,18 @@ pub(crate) struct Gpu {
     /// The vertical display range end
     display_range_vertical_end: u16,
 
+    /// The texture window x mask
+    texture_window_x_mask: u8,
+
+    /// The texture window y mask
+    texture_window_y_mask: u8,
+
+    /// The texture window x offset
+    texture_window_x_offset: u8,
+
+    /// The texture window y offset
+    texture_window_y_offset: u8,
+
     /// The gp0 command bytes
     gp0_bytes: [u8; 3],
 
@@ -359,6 +371,7 @@ impl Gpu {
                 // NOP
             }
             0xe1 => self.op_draw_mode_setting(command),
+            0xe2 => self.op_texture_window_setting(command),
             _ => unimplemented!("gp0 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }

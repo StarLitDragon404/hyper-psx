@@ -53,4 +53,18 @@ impl Gpu {
         self.texture_rectangle_x_flip = ((command >> 12) & 0x1) as u8 != 0;
         self.texture_rectangle_y_flip = ((command >> 13) & 0x1) as u8 != 0;
     }
+
+    /// GP0(E2h) - Texture Window setting
+    ///
+    /// Arguments:
+    ///
+    /// * `command`: The command itself
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#gp0e2h-texture-window-setting>
+    pub(super) fn op_texture_window_setting(&mut self, command: u32) {
+        self.texture_window_x_mask = (command & 0x1f) as u8;
+        self.texture_window_y_mask = ((command >> 5) & 0x1f) as u8;
+        self.texture_window_x_offset = ((command >> 10) & 0x1f) as u8;
+        self.texture_window_y_offset = ((command >> 15) & 0x1f) as u8;
+    }
 }
