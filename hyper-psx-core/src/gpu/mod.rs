@@ -233,6 +233,17 @@ pub(super) enum DrawingMode {
     Odd = 1,
 }
 
+/// The receive mode
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(super) enum ReceiveMode {
+    /// Command
+    #[default]
+    Command = 0,
+
+    /// Data
+    Data = 1,
+}
+
 /// The GPU component
 pub(crate) struct Gpu {
     /// The texture page x base
@@ -368,7 +379,10 @@ pub(crate) struct Gpu {
     arguments: Vec<u32>,
 
     /// The remaining arguments count
-    argument_count: u8,
+    argument_count: u16,
+
+    /// The receive mode
+    receive_mode: ReceiveMode,
 
     /// The renderer
     renderer: Box<dyn Renderer>,
@@ -423,6 +437,7 @@ impl Gpu {
             gp1_bytes: [0; 3],
             arguments: Vec::new(),
             argument_count: 0,
+            receive_mode: ReceiveMode::Command,
             renderer,
         }
     }
@@ -451,14 +466,8 @@ impl Gpu {
         if self.argument_count == 0 {
             let opcode = (command >> 24) as u8;
             let bytes = match opcode {
-                0x00 => 1,
                 0x28 => 5, // 4 Vertices
-                0xe1 => 1,
-                0xe2 => 1,
-                0xe3 => 1,
-                0xe4 => 1,
-                0xe5 => 1,
-                0xe6 => 1,
+                0xa0 => 3, // Destination, Resolution
                 _ => 1,
             };
 
@@ -467,29 +476,40 @@ impl Gpu {
         }
 
         self.argument_count -= 1;
-        self.arguments.push(command);
 
-        if self.argument_count != 0 {
-            return;
-        }
+        match self.receive_mode {
+            ReceiveMode::Command => {
+                self.arguments.push(command);
 
-        let opcode = (self.arguments[0] >> 24) as u8;
-        match opcode {
-            0x00 => self.op_nop(),
-            0x01 => self.op_clear_cache(),
-            0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
-            0xe1 => self.op_draw_mode_setting(),
-            0xe2 => self.op_texture_window_setting(),
-            0xe3 => self.op_set_drawing_area_top_left(),
-            0xe4 => self.op_set_drawing_area_bottom_right(),
-            0xe5 => self.op_set_drawing_offset(),
-            0xe6 => self.op_mask_bit_setting(),
-            _ => unimplemented!(
-                "gp0 command {:#010x} with opcode {:#04x} ({:#010b})",
-                command,
-                opcode,
-                opcode
-            ),
+                if self.argument_count == 0 {
+                    let opcode = (self.arguments[0] >> 24) as u8;
+                    match opcode {
+                        0x00 => self.op_nop(),
+                        0x01 => self.op_clear_cache(),
+                        0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
+                        0xa0 => self.op_copy_rectangle(),
+                        0xe1 => self.op_draw_mode_setting(),
+                        0xe2 => self.op_texture_window_setting(),
+                        0xe3 => self.op_set_drawing_area_top_left(),
+                        0xe4 => self.op_set_drawing_area_bottom_right(),
+                        0xe5 => self.op_set_drawing_offset(),
+                        0xe6 => self.op_mask_bit_setting(),
+                        _ => unimplemented!(
+                            "gp0 command {:#010x} with opcode {:#04x} ({:#010b})",
+                            command,
+                            opcode,
+                            opcode
+                        ),
+                    }
+                }
+            }
+            ReceiveMode::Data => {
+                // TODO: Handle VRAM
+
+                if self.argument_count == 0 {
+                    self.receive_mode = ReceiveMode::Command;
+                }
+            }
         }
     }
 

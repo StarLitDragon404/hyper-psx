@@ -6,7 +6,7 @@
 
 use crate::{
     gpu::{
-        DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, SemiTransparency,
+        DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, ReceiveMode, SemiTransparency,
         TexturePageColors,
     },
     renderer::{color::Color, position::Position},
@@ -45,6 +45,26 @@ impl Gpu {
         let colors = [Color::from_word(self.arguments[0] & 0x00ffffff); 4];
 
         self.renderer.draw_quad(positions, colors);
+    }
+
+    /// GP0(A0h) - Copy Rectangle (CPU to VRAM)
+    ///
+    /// <https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#cpu-to-vram-blitting-command-5-101>
+    pub(super) fn op_copy_rectangle(&mut self) {
+        log::debug!(target: "gpu", "GP0(A0h) - Copy Rectangle (CPU to VRAM)");
+
+        let _destination_x = (self.arguments[1] & 0xffff) as u16;
+        let _destination_y = ((self.arguments[1] >> 16) & 0xffff) as u16;
+
+        let width = (self.arguments[2] & 0xffff) as u16;
+        let height = ((self.arguments[2] >> 16) & 0xffff) as u16;
+
+        // Align
+        let image_size = ((width * height) + 1) & !1;
+        let words = image_size / 2;
+
+        self.argument_count = words;
+        self.receive_mode = ReceiveMode::Data;
     }
 
     /// GP0(E1h) - Draw Mode setting (aka "Texpage")

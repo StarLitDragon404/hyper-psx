@@ -134,9 +134,9 @@ impl Renderer for SoftwareRenderer {
                 }
 
                 let buffer = self.pixels.frame_mut();
-                buffer[(y as u32 * self.width + x as u32 * 4) as usize] = colors[0].r();
-                buffer[((y as u32 * self.width + x as u32 * 4) + 1) as usize] = colors[0].g();
-                buffer[((y as u32 * self.width + x as u32 * 4) + 2) as usize] = colors[0].b();
+                buffer[((y as u32 * self.width + x as u32) * 4) as usize] = colors[0].r();
+                buffer[(((y as u32 * self.width + x as u32) * 4) + 1) as usize] = colors[0].g();
+                buffer[(((y as u32 * self.width + x as u32) * 4) + 2) as usize] = colors[0].b();
             }
         }
     }

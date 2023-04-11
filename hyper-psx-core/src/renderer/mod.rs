@@ -24,8 +24,18 @@ pub(crate) trait Renderer {
     fn resize(&mut self, width: u32, height: u32);
 
     /// Draws a quad
+    ///
+    /// Arguments:
+    ///
+    /// * `positions`: The vertices positions
+    /// * `colors`: The vertices colors
     fn draw_quad(&mut self, positions: [Position; 4], colors: [Color; 4]);
 
     /// Draws a triangle
+    ///
+    /// Arguments:
+    ///
+    /// * `positions`: The vertices positions
+    /// * `colors`: The vertices colors
     fn draw_triangle(&mut self, positions: [Position; 3], colors: [Color; 3]);
 }
