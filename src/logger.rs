@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+use crate::Debug;
+
 use chrono::Local;
 use color_eyre::Result;
 use fern::{
@@ -18,15 +20,13 @@ use std::{fs::OpenOptions, io};
 /// # Arguments:
 ///
 /// * `verbosity`: The verbosity the logger should operate on
-pub(crate) fn init(verbosity: usize) -> Result<()> {
+pub(crate) fn init(verbosity: usize, debug: Debug) -> Result<()> {
     let mut logger = Dispatch::new();
 
-    let color_logger = create_color_logger(verbosity);
-
+    let color_logger = create_color_logger(verbosity, debug);
     logger = logger.chain(color_logger);
 
-    let file_logger = create_file_logger(verbosity)?;
-
+    let file_logger = create_file_logger(verbosity, debug)?;
     logger = logger.chain(file_logger);
 
     logger.apply()?;
@@ -34,7 +34,7 @@ pub(crate) fn init(verbosity: usize) -> Result<()> {
     Ok(())
 }
 
-fn create_color_logger(verbosity: usize) -> Dispatch {
+fn create_color_logger(verbosity: usize, debug: Debug) -> Dispatch {
     let mut logger = Dispatch::new();
 
     let levels = ColoredLevelConfig::new()
@@ -77,12 +77,20 @@ fn create_color_logger(verbosity: usize) -> Dispatch {
         _ => logger.level(LevelFilter::Error),
     };
 
+    logger = match debug {
+        Debug::None => logger,
+        Debug::Bus => logger.level_for("bus", LevelFilter::Debug),
+        Debug::Cpu => logger.level_for("cpu", LevelFilter::Debug),
+        Debug::Dma => logger.level_for("dma", LevelFilter::Debug),
+        Debug::Gpu => logger.level_for("gpu", LevelFilter::Debug),
+    };
+
     logger = logger.chain(io::stdout());
 
     logger
 }
 
-fn create_file_logger(verbosity: usize) -> Result<Dispatch> {
+fn create_file_logger(verbosity: usize, debug: Debug) -> Result<Dispatch> {
     let mut logger = Dispatch::new();
 
     logger = logger.format(move |out, message, record| {
@@ -112,6 +120,14 @@ fn create_file_logger(verbosity: usize) -> Result<Dispatch> {
         2 => logger.level(LevelFilter::Debug),
         3 => logger.level(LevelFilter::Trace),
         _ => logger.level(LevelFilter::Error),
+    };
+
+    logger = match debug {
+        Debug::None => logger,
+        Debug::Bus => logger.level_for("bus", LevelFilter::Debug),
+        Debug::Cpu => logger.level_for("cpu", LevelFilter::Debug),
+        Debug::Dma => logger.level_for("dma", LevelFilter::Debug),
+        Debug::Gpu => logger.level_for("gpu", LevelFilter::Debug),
     };
 
     logger = logger.chain(

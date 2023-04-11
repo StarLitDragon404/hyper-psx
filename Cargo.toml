@@ -10,6 +10,7 @@ members = [ "hyper-psx-core" ]
 hyper-psx-core = { path = "hyper-psx-core" }
 
 chrono = "0.4"
+clap = { version = "4.0", features = [ "derive" ] }
 color-eyre = "0.6"
 fern = { version = "0.6", features = [ "colored" ] }
 log = "0.4"
