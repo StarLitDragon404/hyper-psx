@@ -379,6 +379,7 @@ impl Gpu {
             0x05 => self.op_start_of_display_area_in_vram(command),
             0x06 => self.op_horizontal_display_range_on_screen(command),
             0x07 => self.op_vertical_display_range_on_screen(command),
+            0x08 => self.op_display_mode(command),
             _ => unimplemented!("gp1 command {:#010x} with opcode {:#04x}", command, opcode),
         }
     }
