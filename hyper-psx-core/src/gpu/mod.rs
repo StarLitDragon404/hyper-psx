@@ -468,6 +468,7 @@ impl Gpu {
             let bytes = match opcode {
                 0x28 => 5,
                 0x30 => 6,
+                0x38 => 8,
                 0xa0 => 3,
                 _ => 1,
             };
@@ -489,6 +490,7 @@ impl Gpu {
                         0x01 => self.op_clear_cache(),
                         0x28 => self.op_draw_monochrome_four_point_polygon_opaque(),
                         0x30 => self.op_draw_shaded_three_point_polygon_opaque(),
+                        0x38 => self.op_draw_shaded_four_point_polygon_opaque(),
                         0xa0 => self.op_copy_rectangle(),
                         0xe1 => self.op_draw_mode_setting(),
                         0xe2 => self.op_texture_window_setting(),
