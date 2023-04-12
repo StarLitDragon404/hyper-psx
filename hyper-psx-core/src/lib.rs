@@ -87,34 +87,32 @@ impl Psx {
 
     /// Runs the PSX Emulator
     pub fn run(&mut self) {
-        let mut last_frame = Instant::now();
-        self.window.run(|event| {
-            match event {
-                Event::RedrawRequested(_) => {
-                    last_frame = Instant::now();
-                    self.cpu.render();
+        self.window.run(|event| match event {
+            Event::MainEventsCleared => {
+                let start = Instant::now();
+
+                while start.elapsed().as_millis() <= 15 {
+                    self.cpu.step();
                 }
-                Event::WindowEvent {
-                    event: WindowEvent::Resized(size),
-                    ..
-                } => {
-                    if size.width == 0 || size.height == 0 {
-                        return;
-                    }
 
-                    let size = Vector2 {
-                        x: size.width,
-                        y: size.height,
-                    };
-
-                    self.cpu.resize(size);
+                self.cpu.render();
+            }
+            Event::WindowEvent {
+                event: WindowEvent::Resized(size),
+                ..
+            } => {
+                if size.width == 0 || size.height == 0 {
+                    return;
                 }
-                _ => {}
-            }
 
-            while (Instant::now() - last_frame).as_millis() <= 10 {
-                self.cpu.step();
+                let size = Vector2 {
+                    x: size.width,
+                    y: size.height,
+                };
+
+                self.cpu.resize(size);
             }
+            _ => {}
         });
     }
 }

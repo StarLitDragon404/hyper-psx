@@ -71,17 +71,14 @@ impl Window {
         event_loop
             .borrow_mut()
             .run_return(|event, _, control_flow| {
-                *control_flow = ControlFlow::Poll;
+                control_flow.set_poll();
 
                 handle(&event);
 
                 match event {
-                    Event::MainEventsCleared => {
-                        self.window.request_redraw();
-                    }
                     Event::WindowEvent { event, .. } => match event {
                         WindowEvent::CloseRequested => {
-                            *control_flow = ControlFlow::Exit;
+                            control_flow.set_exit();
                         }
                         WindowEvent::KeyboardInput { input, .. } => {
                             if input.state != ElementState::Pressed {
@@ -93,7 +90,7 @@ impl Window {
                             };
 
                             if virtual_key_code == VirtualKeyCode::Escape {
-                                *control_flow = ControlFlow::Exit;
+                                control_flow.set_exit();
                             }
                         }
                         _ => {}
