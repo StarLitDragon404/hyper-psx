@@ -156,7 +156,7 @@ impl Renderer for SoftwareRenderer {
 
                 let color = b_color * v + a_color * u + c_color * w;
 
-                let index = ((y as u32 * self.size.x + x as u32) * 4) as usize;
+                let index = ((y as u32 * 1024 + x as u32) * 4) as usize;
                 let buffer = self.pixels.frame_mut();
                 buffer[index] = color.x as u8;
                 buffer[index + 1] = color.y as u8;
