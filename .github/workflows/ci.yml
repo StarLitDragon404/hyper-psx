@@ -25,6 +25,15 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update -qq
+          sudo apt install -y \
+            cmake \
+            extra-cmake-modules \
+            libglfw3-dev \
+            libwayland-dev \
+            libxinerama-dev \
+            libxkbcommon-dev \
+            wayland-protocols \
+            xorg-dev  \
 
       - name: Install Rust-Toolchain
         uses: actions-rs/toolchain@v1
