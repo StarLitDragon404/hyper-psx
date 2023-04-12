@@ -53,6 +53,12 @@ pub struct Psx {
     /// The CPU component
     cpu: Cpu,
 
+    /// The DMA component,
+    dma: Dma,
+
+    /// The GPU component,
+    gpu: Gpu,
+
     /// The window component
     window: Window,
 }
@@ -78,11 +84,16 @@ impl Psx {
         let renderer: Box<dyn Renderer> = Box::new(SoftwareRenderer::new(&window)?);
         let gpu = Gpu::new(renderer);
 
-        let bus = Bus::new(bios, ram, dma, gpu);
+        let bus = Bus::new(bios, ram);
 
         let cpu = Cpu::new(bus);
 
-        Ok(Self { cpu, window })
+        Ok(Self {
+            cpu,
+            dma,
+            gpu,
+            window,
+        })
     }
 
     /// Runs the PSX Emulator
@@ -108,7 +119,7 @@ impl Psx {
                         y: height as u32,
                     };
 
-                    self.cpu.resize(size);
+                    self.gpu.resize(size);
                 };
             });
 
@@ -122,22 +133,26 @@ impl Psx {
             accumulator += elapsed_time;
 
             while accumulator >= delta_time {
-                self.update_frame(cycles_per_frame);
-
-                self.cpu.render();
+                self.emulate_frame(cycles_per_frame);
 
                 accumulator -= delta_time;
             }
         }
     }
 
-    fn update_frame(&mut self, cycles_per_frame: u32) {
+    /// Emulates a frame
+    ///
+    /// Arguments:
+    ///
+    /// * `cycles_per_frame`: The amount of cycles this frame needs to do
+    fn emulate_frame(&mut self, cycles_per_frame: u32) {
         for _ in 0..cycles_per_frame / 2 {
-            self.cpu.step();
+            self.cpu.step(&mut self.dma, &mut self.gpu);
         }
 
-        // TODO: Move DMA here and start transfer here
+        self.dma.step(self.cpu.bus().ram(), &mut self.gpu);
 
+        self.gpu.step();
         // TODO: Emulate GPU frames with VBLANK
     }
 }

@@ -175,9 +175,21 @@ impl Channel {
         }
     }
 
+    /// Executes 1 cycle
+    ///
+    /// Arguments:
+    ///
+    /// * `ram`: The RAM component
+    /// * `gpu`: The GPU component
+    pub(crate) fn step(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
+        if self.ready() {
+            self.start_transfer(ram, gpu);
+        }
+    }
+
     /// Checks if the current channel is ready to transfer data by checking if
     /// it is enabled/busy and if the trigger mode is a manual start
-    pub(crate) fn ready(&self) -> bool {
+    fn ready(&self) -> bool {
         if self.busy != Busy::Busy {
             return false;
         }
@@ -190,7 +202,7 @@ impl Channel {
     }
 
     /// Finishes off a transfer
-    pub(crate) fn finish(&mut self) {
+    fn finish(&mut self) {
         self.busy = Busy::Completed;
         self.trigger = Trigger::Normal;
 
@@ -198,7 +210,7 @@ impl Channel {
     }
 
     /// Starts the block or linked list transfer for the DMA
-    pub(crate) fn start_transfer(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
+    fn start_transfer(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
         match self.sync_mode {
             SyncMode::Immediately => self.transfer_block(ram, gpu),
             SyncMode::SyncBlocks => self.transfer_block(ram, gpu),

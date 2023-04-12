@@ -21,9 +21,9 @@ use crate::{
         instruction::Instruction,
         register::{Cop0Register, Register},
     },
+    dma::Dma,
+    gpu::Gpu,
 };
-
-use cgmath::Vector2;
 
 /// The CPU component
 #[derive(Debug)]
@@ -80,12 +80,12 @@ impl Cpu {
     }
 
     /// Steps the next instruction
-    pub(crate) fn step(&mut self) {
+    pub(crate) fn step(&mut self, dma: &mut Dma, gpu: &mut Gpu) {
         if self.pc % 4 != 0 {
             panic!("unaligned pc");
         }
 
-        let instruction = Instruction(self.bus.read_u32(self.pc), self.pc);
+        let instruction = Instruction(self.bus.read_u32(self.pc, dma, gpu), self.pc);
         self.pc += 4;
         self.n += 1;
 
@@ -99,7 +99,7 @@ impl Cpu {
             self.set_register(load_register.0, load_register.1);
         }
 
-        self.execute(instruction);
+        self.execute(instruction, dma, gpu);
 
         self.registers = self.out_registers;
     }
@@ -109,7 +109,7 @@ impl Cpu {
     /// # Arguments:
     ///
     /// * `instruction`: The instruction to be executed
-    fn execute(&mut self, instruction: Instruction) {
+    fn execute(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         match instruction.op() {
             0b000000 => match instruction.funct() {
                 0b000000 => self.op_sll(instruction),
@@ -194,18 +194,18 @@ impl Cpu {
                 )
             }
             0b010011 => self.raise_exception(instruction, Exception::Cpu),
-            0b100000 => self.op_lb(instruction),
-            0b100001 => self.op_lh(instruction),
-            0b100010 => self.op_lwl(instruction),
-            0b100011 => self.op_lw(instruction),
-            0b100100 => self.op_lbu(instruction),
-            0b100101 => self.op_lhu(instruction),
-            0b100110 => self.op_lwr(instruction),
-            0b101000 => self.op_sb(instruction),
-            0b101001 => self.op_sh(instruction),
-            0b101010 => self.op_swl(instruction),
-            0b101011 => self.op_sw(instruction),
-            0b101110 => self.op_swr(instruction),
+            0b100000 => self.op_lb(instruction, dma, gpu),
+            0b100001 => self.op_lh(instruction, dma, gpu),
+            0b100010 => self.op_lwl(instruction, dma, gpu),
+            0b100011 => self.op_lw(instruction, dma, gpu),
+            0b100100 => self.op_lbu(instruction, dma, gpu),
+            0b100101 => self.op_lhu(instruction, dma, gpu),
+            0b100110 => self.op_lwr(instruction, dma, gpu),
+            0b101000 => self.op_sb(instruction, dma, gpu),
+            0b101001 => self.op_sh(instruction, dma, gpu),
+            0b101010 => self.op_swl(instruction, dma, gpu),
+            0b101011 => self.op_sw(instruction, dma, gpu),
+            0b101110 => self.op_swr(instruction, dma, gpu),
             0b110000 => self.raise_exception(instruction, Exception::Cpu),
             0b110001 => self.raise_exception(instruction, Exception::Cpu),
             0b110010 => self.op_lwc2(instruction),
@@ -225,20 +225,6 @@ impl Cpu {
                 self.raise_exception(instruction, Exception::Ri)
             }
         }
-    }
-
-    /// Renders the current VRAM
-    pub(crate) fn render(&mut self) {
-        self.bus.render();
-    }
-
-    /// Resizes the current framebuffer
-    ///
-    /// Arguments:
-    ///
-    /// * `size`: New framebuffer size
-    pub(crate) fn resize(&mut self, size: Vector2<u32>) {
-        self.bus.resize(size);
     }
 
     /// Branches to an offset
@@ -302,5 +288,11 @@ impl Cpu {
 
         assert!(cop0_register_value < 64);
         self.cop0_registers[cop0_register_value]
+    }
+
+    /// Returns the Bus
+    pub(crate) fn bus(&mut self) -> &mut Bus {
+        // TODO: Move bus to application
+        &mut self.bus
     }
 }

@@ -443,8 +443,8 @@ impl Gpu {
         }
     }
 
-    /// Renders the current VRAM
-    pub(crate) fn render(&mut self) {
+    /// Executes 1 cycle
+    pub(crate) fn step(&mut self) {
         self.renderer.render();
     }
 

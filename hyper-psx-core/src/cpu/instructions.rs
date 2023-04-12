@@ -4,12 +4,16 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{
-    exception::Exception,
-    extension::ExtensionExt,
-    instruction::Instruction,
-    register::{Cop0Register, Register},
-    Cpu,
+use crate::{
+    cpu::{
+        exception::Exception,
+        extension::ExtensionExt,
+        instruction::Instruction,
+        register::{Cop0Register, Register},
+        Cpu,
+    },
+    dma::Dma,
+    gpu::Gpu,
 };
 
 impl Cpu {
@@ -426,7 +430,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=244>
-    pub(super) fn op_lb(&mut self, instruction: Instruction) {
+    pub(super) fn op_lb(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -449,7 +453,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.bus.read_u8(address).sign_extend() as u32;
+        let result = self.bus.read_u8(address, dma, gpu).sign_extend() as u32;
 
         self.load_delay_register = Some((rt, result));
     }
@@ -468,7 +472,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=252>
-    pub(super) fn op_lwl(&mut self, instruction: Instruction) {
+    pub(super) fn op_lwl(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -479,7 +483,7 @@ impl Cpu {
         let value = self.out_registers[rt as usize];
 
         let aligned_address = address & !3;
-        let aligned_word = self.bus.read_u32(aligned_address);
+        let aligned_word = self.bus.read_u32(aligned_address, dma, gpu);
 
         log::debug!(
             target: "cpu",
@@ -516,7 +520,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=246>
-    pub(super) fn op_lh(&mut self, instruction: Instruction) {
+    pub(super) fn op_lh(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -544,7 +548,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.bus.read_u16(address).sign_extend();
+        let result = self.bus.read_u16(address, dma, gpu).sign_extend();
 
         self.load_delay_register = Some((rt, result));
     }
@@ -563,7 +567,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=249>
-    pub(super) fn op_lw(&mut self, instruction: Instruction) {
+    pub(super) fn op_lw(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -591,7 +595,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.bus.read_u32(address);
+        let result = self.bus.read_u32(address, dma, gpu);
 
         self.load_delay_register = Some((rt, result));
     }
@@ -610,7 +614,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=245>
-    pub(super) fn op_lbu(&mut self, instruction: Instruction) {
+    pub(super) fn op_lbu(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -633,7 +637,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.bus.read_u8(address) as u32;
+        let result = self.bus.read_u8(address, dma, gpu) as u32;
 
         self.load_delay_register = Some((rt, result));
     }
@@ -652,7 +656,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=247>
-    pub(super) fn op_lhu(&mut self, instruction: Instruction) {
+    pub(super) fn op_lhu(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -680,7 +684,7 @@ impl Cpu {
             return;
         }
 
-        let result = self.bus.read_u16(address) as u32;
+        let result = self.bus.read_u16(address, dma, gpu) as u32;
 
         self.load_delay_register = Some((rt, result));
     }
@@ -699,7 +703,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=255>
-    pub(super) fn op_lwr(&mut self, instruction: Instruction) {
+    pub(super) fn op_lwr(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -710,7 +714,7 @@ impl Cpu {
         let value = self.out_registers[rt as usize];
 
         let aligned_address = address & !3;
-        let aligned_word = self.bus.read_u32(aligned_address);
+        let aligned_word = self.bus.read_u32(aligned_address, dma, gpu);
 
         log::debug!(
             target: "cpu",
@@ -748,7 +752,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=268>
-    pub(super) fn op_sb(&mut self, instruction: Instruction) {
+    pub(super) fn op_sb(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -774,7 +778,7 @@ impl Cpu {
 
         let result = t as u8;
 
-        self.bus.write_u8(address, result);
+        self.bus.write_u8(address, result, dma, gpu);
     }
 
     /// Opcode SH - Store Halfword (0b101001)
@@ -792,7 +796,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=269>
-    pub(super) fn op_sh(&mut self, instruction: Instruction) {
+    pub(super) fn op_sh(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -823,7 +827,7 @@ impl Cpu {
 
         let result = t as u16;
 
-        self.bus.write_u16(address, result);
+        self.bus.write_u16(address, result, dma, gpu);
     }
 
     /// Opcode SWL - Store Word Left (0b101010)
@@ -841,7 +845,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=284>
-    pub(super) fn op_swl(&mut self, instruction: Instruction) {
+    pub(super) fn op_swl(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -852,7 +856,7 @@ impl Cpu {
 
         let aligned_address = address & !3;
 
-        let value = self.bus.read_u32(aligned_address);
+        let value = self.bus.read_u32(aligned_address, dma, gpu);
 
         log::debug!(
             target: "cpu",
@@ -872,7 +876,7 @@ impl Cpu {
             _ => unreachable!(),
         };
 
-        self.bus.write_u32(aligned_address, result);
+        self.bus.write_u32(aligned_address, result, dma, gpu);
     }
 
     /// Opcode SW - Store Word (0b101011)
@@ -890,7 +894,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=282>
-    pub(super) fn op_sw(&mut self, instruction: Instruction) {
+    pub(super) fn op_sw(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -921,7 +925,7 @@ impl Cpu {
 
         let result = t;
 
-        self.bus.write_u32(address, result);
+        self.bus.write_u32(address, result, dma, gpu);
     }
 
     /// Opcode SWR - Store Word Right (0b101110)
@@ -939,7 +943,7 @@ impl Cpu {
     /// * Address error exception
     ///
     /// <https://cgi.cse.unsw.edu.au/~cs3231/doc/R3000.pdf#page=286>
-    pub(super) fn op_swr(&mut self, instruction: Instruction) {
+    pub(super) fn op_swr(&mut self, instruction: Instruction, dma: &mut Dma, gpu: &mut Gpu) {
         let base = instruction.rs();
         let rt = instruction.rt();
         let offset = instruction.imm();
@@ -950,7 +954,7 @@ impl Cpu {
 
         let aligned_address = address & !3;
 
-        let value = self.bus.read_u32(aligned_address);
+        let value = self.bus.read_u32(aligned_address, dma, gpu);
 
         log::debug!(
             target: "cpu",
@@ -970,6 +974,6 @@ impl Cpu {
             _ => unreachable!(),
         };
 
-        self.bus.write_u32(aligned_address, result);
+        self.bus.write_u32(aligned_address, result, dma, gpu);
     }
 }

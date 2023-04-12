@@ -7,8 +7,9 @@
 pub(crate) mod channel;
 
 use crate::{
-    bus::memory::Memory,
+    bus::{memory::Memory, ram::Ram},
     dma::channel::{Channel, Id},
+    gpu::Gpu,
 };
 
 /// Direct Memory Access Component
@@ -45,6 +46,18 @@ impl Dma {
         }
     }
 
+    /// Executes 1 cycle
+    ///
+    /// Arguments:
+    ///
+    /// * `ram`: The RAM component
+    /// * `gpu`: The GPU component
+    pub(crate) fn step(&mut self, ram: &mut Ram, gpu: &mut Gpu) {
+        for channel in &mut self.channels {
+            channel.step(ram, gpu);
+        }
+    }
+
     /// Gives the channel id based on the offset
     ///
     /// # Arguments:
@@ -53,16 +66,6 @@ impl Dma {
     #[inline(always)]
     pub(crate) fn channel_id(offset: u32) -> u8 {
         ((offset >> 4) & 0xf) as u8
-    }
-
-    /// Gives the channel based on the id
-    ///
-    /// # Arguments:
-    ///
-    /// * `id`: The channel id
-    pub(crate) fn channel_mut(&mut self, id: u8) -> &mut Channel {
-        assert!(id < 8);
-        &mut self.channels[id as usize]
     }
 }
 
