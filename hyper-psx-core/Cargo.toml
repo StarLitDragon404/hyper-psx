@@ -14,5 +14,5 @@ log = "0.4"
 thiserror = "1.0"
 
 cgmath = "0.18"
+glfw = "0.51"
 pixels = "0.12"
-winit = "0.28"

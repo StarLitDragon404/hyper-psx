@@ -27,9 +27,9 @@ use crate::{
 };
 
 use cgmath::Vector2;
-use std::{path::Path, time::Instant};
+use glfw::WindowEvent;
+use std::path::Path;
 use thiserror::Error;
-use winit::event::{Event, WindowEvent};
 
 /// The error type for the creation process of the PSX
 #[derive(Debug, Error)]
@@ -87,32 +87,29 @@ impl Psx {
 
     /// Runs the PSX Emulator
     pub fn run(&mut self) {
-        self.window.run(|event| match event {
-            Event::MainEventsCleared => {
-                let start = Instant::now();
-
-                while start.elapsed().as_millis() <= 15 {
-                    self.cpu.step();
-                }
-
-                self.cpu.render();
+        while !self.window.should_close() {
+            for _ in 0..100000 {
+                self.cpu.step();
             }
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                ..
-            } => {
-                if size.width == 0 || size.height == 0 {
-                    return;
-                }
 
-                let size = Vector2 {
-                    x: size.width,
-                    y: size.height,
+            self.cpu.render();
+
+            self.window.handle_events(|event| {
+                if let WindowEvent::Size(width, height) = *event {
+                    if width == 0 || height == 0 {
+                        return;
+                    }
+
+                    let size = Vector2 {
+                        x: width as u32,
+                        y: height as u32,
+                    };
+
+                    self.cpu.resize(size);
                 };
+            });
 
-                self.cpu.resize(size);
-            }
-            _ => {}
-        });
+            self.window.poll_events();
+        }
     }
 }

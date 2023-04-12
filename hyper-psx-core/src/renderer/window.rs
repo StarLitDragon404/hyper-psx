@@ -4,114 +4,96 @@
  * SPDX-License-Identifier: MIT
  */
 
-use std::{cell::RefCell, rc::Rc};
-
 use cgmath::Vector2;
+use glfw::{Action, Context, Glfw, InitError, Key, WindowEvent, WindowMode};
+use std::sync::mpsc::Receiver;
 use thiserror::Error;
-use winit::{
-    dpi::LogicalSize,
-    error::OsError,
-    event::{ElementState, Event, VirtualKeyCode, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    platform::run_return::EventLoopExtRunReturn,
-    window::{self, WindowBuilder},
-};
 
 /// The error type for the window
 #[derive(Debug, Error)]
 pub enum CreationError {
-    /// If the Window failed to load
+    /// If the window failed to create
     #[error("failed to create window")]
-    WindowCreationFailure(#[from] OsError),
+    WindowCreationFailure,
 
-    /// If the Pixles buffer failed to create
-    #[error("failed to create pixels buffer")]
-    PixelsCreationFailure(#[from] pixels::Error),
+    /// If the GLFW failed to initialize
+    #[error("failed to initialize glfw")]
+    GlfwInitFailure(#[from] InitError),
 }
 
 /// The window
 #[derive(Debug)]
 pub(crate) struct Window {
-    /// The window event loop
-    event_loop: Rc<RefCell<EventLoop<()>>>,
+    /// The interna glfw representation
+    glfw: Glfw,
 
     /// The internal handle
-    window: window::Window,
+    window: glfw::Window,
+
+    /// The event receiver
+    events: Receiver<(f64, WindowEvent)>,
 }
 
 impl Window {
     /// Creates a new window
     pub(crate) fn new() -> Result<Self, CreationError> {
-        let event_loop = EventLoop::new();
-        let window = {
-            let size = LogicalSize::new(1024, 512);
-            WindowBuilder::new()
-                .with_title("Hyper-PSX")
-                .with_inner_size(size)
-                .build(&event_loop)?
-        };
+        let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS)?;
+
+        let (mut window, events) = glfw
+            .create_window(1024, 512, "Hyper-PSX", WindowMode::Windowed)
+            .ok_or(CreationError::WindowCreationFailure)?;
+
+        window.set_key_polling(true);
+        window.set_size_polling(true);
+        window.make_current();
 
         Ok(Self {
-            event_loop: Rc::new(RefCell::new(event_loop)),
+            glfw,
             window,
+            events,
         })
     }
 
-    /// Runs the event loop
+    /// Polls the latest events
+    pub(crate) fn poll_events(&mut self) {
+        self.glfw.poll_events();
+    }
+
+    /// Handles all events
     ///
     /// Arguments:
     ///
-    /// * `handle`: The update handle
-    pub(crate) fn run<F>(&mut self, mut handle: F)
+    /// * `event_handler`: The event handler
+    pub(crate) fn handle_events<F>(&mut self, mut event_handler: F)
     where
-        F: FnMut(&Event<()>),
+        F: FnMut(&WindowEvent),
     {
-        let event_loop = self.event_loop.clone();
+        for (_, event) in glfw::flush_messages(&self.events) {
+            event_handler(&event);
 
-        event_loop
-            .borrow_mut()
-            .run_return(|event, _, control_flow| {
-                control_flow.set_poll();
+            if let WindowEvent::Key(Key::Escape, _, Action::Press, _) = event {
+                self.window.set_should_close(true);
+            }
+        }
+    }
 
-                handle(&event);
-
-                match event {
-                    Event::WindowEvent { event, .. } => match event {
-                        WindowEvent::CloseRequested => {
-                            control_flow.set_exit();
-                        }
-                        WindowEvent::KeyboardInput { input, .. } => {
-                            if input.state != ElementState::Pressed {
-                                return;
-                            }
-
-                            let Some(virtual_key_code) = input.virtual_keycode else {
-                                return;
-                            };
-
-                            if virtual_key_code == VirtualKeyCode::Escape {
-                                control_flow.set_exit();
-                            }
-                        }
-                        _ => {}
-                    },
-                    _ => {}
-                }
-            });
+    /// Tells if the window should close
+    pub(crate) fn should_close(&self) -> bool {
+        self.window.should_close()
     }
 
     /// Returns the window size
     pub(super) fn size(&self) -> Vector2<u32> {
-        let inner_size = self.window.inner_size();
+        let size = self.window.get_size();
 
         Vector2 {
-            x: inner_size.width,
-            y: inner_size.height,
+            x: size.0 as u32,
+            y: size.1 as u32,
         }
     }
 
     /// Returns the internal handle
-    pub(super) fn internal(&self) -> &window::Window {
+    pub(super) fn internal(&self) -> &glfw::Window {
         &self.window
     }
 }
