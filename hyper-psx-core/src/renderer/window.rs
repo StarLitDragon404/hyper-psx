@@ -6,6 +6,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
+use cgmath::Vector2;
 use thiserror::Error;
 use winit::{
     dpi::LogicalSize,
@@ -103,11 +104,13 @@ impl Window {
     }
 
     /// Returns the window size
-    pub(super) fn size(&self) -> (u32, u32) {
-        (
-            self.window.inner_size().width,
-            self.window.inner_size().height,
-        )
+    pub(super) fn size(&self) -> Vector2<u32> {
+        let inner_size = self.window.inner_size();
+
+        Vector2 {
+            x: inner_size.width,
+            y: inner_size.height,
+        }
     }
 
     /// Returns the internal handle

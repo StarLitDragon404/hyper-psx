@@ -9,7 +9,7 @@ use crate::{
         DisplayAreaDrawing, Dither, DrawPixels, Gpu, MaskDrawing, ReceiveMode, SemiTransparency,
         TexturePageColors,
     },
-    renderer::{color::Color, position::Position},
+    renderer::{self, Color},
 };
 
 impl Gpu {
@@ -36,13 +36,13 @@ impl Gpu {
         log::debug!(target: "gpu", "GP0(28h) - Monochrome four-point polygon, opaque");
 
         let positions = [
-            Position::from_word(self.arguments[1]),
-            Position::from_word(self.arguments[2]),
-            Position::from_word(self.arguments[3]),
-            Position::from_word(self.arguments[4]),
+            renderer::position_from_u32(self.arguments[1]),
+            renderer::position_from_u32(self.arguments[2]),
+            renderer::position_from_u32(self.arguments[3]),
+            renderer::position_from_u32(self.arguments[4]),
         ];
 
-        let colors = [Color::from_word(self.arguments[0] & 0x00ffffff); 4];
+        let colors = [renderer::color_from_u32(self.arguments[0] & 0x00ffffff); 4];
 
         self.renderer.draw_quad(positions, colors);
     }
@@ -54,16 +54,16 @@ impl Gpu {
         log::debug!(target: "gpu", "GP0(2ch) - Textured four-point polygon, opaque, texture-blending");
 
         let positions = [
-            Position::from_word(self.arguments[1]),
-            Position::from_word(self.arguments[3]),
-            Position::from_word(self.arguments[5]),
-            Position::from_word(self.arguments[7]),
+            renderer::position_from_u32(self.arguments[1]),
+            renderer::position_from_u32(self.arguments[3]),
+            renderer::position_from_u32(self.arguments[5]),
+            renderer::position_from_u32(self.arguments[7]),
         ];
 
         let colors = [Color {
-            r: 255,
-            g: 0,
-            b: 255,
+            x: 255,
+            y: 0,
+            z: 255,
         }; 4];
 
         // TODO: Implement textures
@@ -78,15 +78,15 @@ impl Gpu {
         log::debug!(target: "gpu", "GP0(30h) - Shaded three-point polygon, opaque");
 
         let positions = [
-            Position::from_word(self.arguments[1]),
-            Position::from_word(self.arguments[3]),
-            Position::from_word(self.arguments[5]),
+            renderer::position_from_u32(self.arguments[1]),
+            renderer::position_from_u32(self.arguments[3]),
+            renderer::position_from_u32(self.arguments[5]),
         ];
 
         let colors = [
-            Color::from_word(self.arguments[0] & 0x00ffffff),
-            Color::from_word(self.arguments[2] & 0x00ffffff),
-            Color::from_word(self.arguments[4] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[0] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[2] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[4] & 0x00ffffff),
         ];
 
         self.renderer.draw_triangle(positions, colors);
@@ -99,17 +99,17 @@ impl Gpu {
         log::debug!(target: "gpu", "GP0(38h) - Shaded four-point polygon, opaque");
 
         let positions = [
-            Position::from_word(self.arguments[1]),
-            Position::from_word(self.arguments[3]),
-            Position::from_word(self.arguments[5]),
-            Position::from_word(self.arguments[7]),
+            renderer::position_from_u32(self.arguments[1]),
+            renderer::position_from_u32(self.arguments[3]),
+            renderer::position_from_u32(self.arguments[5]),
+            renderer::position_from_u32(self.arguments[7]),
         ];
 
         let colors = [
-            Color::from_word(self.arguments[0] & 0x00ffffff),
-            Color::from_word(self.arguments[2] & 0x00ffffff),
-            Color::from_word(self.arguments[4] & 0x00ffffff),
-            Color::from_word(self.arguments[6] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[0] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[2] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[4] & 0x00ffffff),
+            renderer::color_from_u32(self.arguments[6] & 0x00ffffff),
         ];
 
         self.renderer.draw_quad(positions, colors);

@@ -9,6 +9,7 @@ mod gp1;
 
 use crate::{bus::memory::Memory, renderer::Renderer};
 
+use cgmath::Vector2;
 use std::fmt::{self, Debug, Formatter};
 
 /// The semi transparency mode
@@ -447,14 +448,13 @@ impl Gpu {
         self.renderer.render();
     }
 
-    /// Resizes the current frame buffer
+    /// Resizes the current framebuffer
     ///
     /// Arguments:
     ///
-    /// * `width`: The new frame buffer width
-    /// * `height`: The new frame buffer height
-    pub(crate) fn resize(&mut self, width: u32, height: u32) {
-        self.renderer.resize(width, height);
+    /// * `size`: New framebuffer size
+    pub(crate) fn resize(&mut self, size: Vector2<u32>) {
+        self.renderer.resize(size);
     }
 
     /// Executes a GP0 command

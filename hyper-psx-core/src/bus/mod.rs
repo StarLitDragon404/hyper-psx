@@ -15,6 +15,8 @@ use crate::{
     gpu::Gpu,
 };
 
+use cgmath::Vector2;
+
 /// The BUS component connecting everything
 #[derive(Debug)]
 pub(crate) struct Bus {
@@ -581,13 +583,12 @@ impl Bus {
         self.gpu.render();
     }
 
-    /// Resizes the current frame buffer
+    /// Resizes the current framebuffer
     ///
     /// Arguments:
     ///
-    /// * `width`: The new frame buffer width
-    /// * `height`: The new frame buffer height
-    pub(crate) fn resize(&mut self, width: u32, height: u32) {
-        self.gpu.resize(width, height);
+    /// * `size`: New framebuffer size
+    pub(crate) fn resize(&mut self, size: Vector2<u32>) {
+        self.gpu.resize(size);
     }
 }

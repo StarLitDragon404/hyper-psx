@@ -23,6 +23,8 @@ use crate::{
     },
 };
 
+use cgmath::Vector2;
+
 /// The CPU component
 #[derive(Debug)]
 pub(crate) struct Cpu {
@@ -230,14 +232,13 @@ impl Cpu {
         self.bus.render();
     }
 
-    /// Resizes the current frame buffer
+    /// Resizes the current framebuffer
     ///
     /// Arguments:
     ///
-    /// * `width`: The new frame buffer width
-    /// * `height`: The new frame buffer height
-    pub(crate) fn resize(&mut self, width: u32, height: u32) {
-        self.bus.resize(width, height);
+    /// * `size`: New framebuffer size
+    pub(crate) fn resize(&mut self, size: Vector2<u32>) {
+        self.bus.resize(size);
     }
 
     /// Branches to an offset

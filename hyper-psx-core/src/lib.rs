@@ -26,6 +26,7 @@ use crate::{
     },
 };
 
+use cgmath::Vector2;
 use std::{path::Path, time::Instant};
 use thiserror::Error;
 use winit::event::{Event, WindowEvent};
@@ -101,7 +102,12 @@ impl Psx {
                         return;
                     }
 
-                    self.cpu.resize(size.width, size.height);
+                    let size = Vector2 {
+                        x: size.width,
+                        y: size.height,
+                    };
+
+                    self.cpu.resize(size);
                 }
                 _ => {}
             }
