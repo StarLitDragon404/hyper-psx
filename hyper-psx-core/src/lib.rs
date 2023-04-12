@@ -28,7 +28,7 @@ use crate::{
 
 use cgmath::Vector2;
 use glfw::WindowEvent;
-use std::path::Path;
+use std::{path::Path, time::Instant};
 use thiserror::Error;
 
 /// The error type for the creation process of the PSX
@@ -87,13 +87,16 @@ impl Psx {
 
     /// Runs the PSX Emulator
     pub fn run(&mut self) {
+        let cpu_cycles_per_second = 33868800.0; // CPU Cyles per Second
+        let frames_per_second = 60.0_f32; // Around 59.940 for NTSC;
+        let cycles_per_frame = (cpu_cycles_per_second / frames_per_second).round() as u32;
+
+        let delta_time = 1.0 / frames_per_second;
+
+        let mut last_time = Instant::now();
+        let mut accumulator = 0.0;
         while !self.window.should_close() {
-            for _ in 0..100000 {
-                self.cpu.step();
-            }
-
-            self.cpu.render();
-
+            self.window.poll_events();
             self.window.handle_events(|event| {
                 if let WindowEvent::Size(width, height) = *event {
                     if width == 0 || height == 0 {
@@ -109,7 +112,32 @@ impl Psx {
                 };
             });
 
-            self.window.poll_events();
+            let current_time = Instant::now();
+            let mut elapsed_time = (current_time - last_time).as_secs_f32();
+            if elapsed_time > 0.25 {
+                elapsed_time = 0.25;
+            }
+
+            last_time = current_time;
+            accumulator += elapsed_time;
+
+            while accumulator >= delta_time {
+                self.update_frame(cycles_per_frame);
+
+                self.cpu.render();
+
+                accumulator -= delta_time;
+            }
         }
+    }
+
+    fn update_frame(&mut self, cycles_per_frame: u32) {
+        for _ in 0..cycles_per_frame / 2 {
+            self.cpu.step();
+        }
+
+        // TODO: Move DMA here and start transfer here
+
+        // TODO: Emulate GPU frames with VBLANK
     }
 }
