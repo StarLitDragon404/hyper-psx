@@ -86,11 +86,12 @@ impl Bios {
 
 impl Memory for Bios {
     fn write_u8(&mut self, offset: u32, _value: u8) {
-        assert!((offset as usize) < self.data.len());
+        debug_assert!((offset as usize) < self.data.len());
+        unreachable!()
     }
 
     fn read_u8(&self, offset: u32) -> u8 {
-        assert!((offset as usize) < self.data.len());
+        debug_assert!((offset as usize) < self.data.len());
 
         self.data[offset as usize]
     }

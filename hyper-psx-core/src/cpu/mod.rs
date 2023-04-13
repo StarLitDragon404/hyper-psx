@@ -245,7 +245,7 @@ impl Cpu {
     fn set_register(&mut self, register: Register, value: u32) {
         let register_value = register as usize;
 
-        assert!(register_value < 32);
+        debug_assert!(register_value < 32);
 
         if register_value != 0 {
             self.out_registers[register_value] = value;
@@ -260,7 +260,8 @@ impl Cpu {
     fn register(&self, register: Register) -> u32 {
         let register_value = register as usize;
 
-        assert!(register_value < 32);
+        debug_assert!(register_value < 32);
+
         self.registers[register_value]
     }
 
@@ -273,7 +274,8 @@ impl Cpu {
     fn set_cop0_register(&mut self, cop0_register: Cop0Register, value: u32) {
         let cop0_register_value = cop0_register as usize;
 
-        assert!(cop0_register_value < 64);
+        debug_assert!(cop0_register_value < 64);
+
         self.cop0_registers[cop0_register_value] = value;
     }
 
@@ -285,7 +287,8 @@ impl Cpu {
     fn cop0_register(&self, cop0_register: Cop0Register) -> u32 {
         let cop0_register_value = cop0_register as usize;
 
-        assert!(cop0_register_value < 64);
+        debug_assert!(cop0_register_value < 64);
+
         self.cop0_registers[cop0_register_value]
     }
 
