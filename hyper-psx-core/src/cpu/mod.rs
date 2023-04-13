@@ -8,7 +8,6 @@ mod branch;
 mod cop0;
 mod cop2;
 mod exception;
-mod extension;
 mod instruction;
 mod instructions;
 mod register;

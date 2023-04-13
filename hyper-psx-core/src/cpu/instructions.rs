@@ -7,13 +7,13 @@
 use crate::{
     cpu::{
         exception::Exception,
-        extension::ExtensionExt,
         instruction::Instruction,
         register::{Cop0Register, Register},
         Cpu,
     },
     dma::Dma,
     gpu::Gpu,
+    utils::{sext::SextExt, zext::ZextExt},
 };
 
 impl Cpu {

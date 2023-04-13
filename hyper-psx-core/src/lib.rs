@@ -12,6 +12,7 @@ mod cpu;
 mod dma;
 mod gpu;
 mod renderer;
+mod utils;
 
 use crate::{
     bios::Bios,

@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{extension::ExtensionExt, instruction::Instruction, register::Register, Cpu};
+use crate::{
+    cpu::{instruction::Instruction, register::Register, Cpu},
+    utils::sext::SextExt,
+};
 
 impl Cpu {
     /// Opcode BLTZ - Branch On Less Than Zero (0b00000)

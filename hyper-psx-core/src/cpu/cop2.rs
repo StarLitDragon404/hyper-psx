@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
-use crate::cpu::{extension::ExtensionExt, instruction::Instruction, Cpu};
+use crate::{
+    cpu::{instruction::Instruction, Cpu},
+    utils::sext::SextExt,
+};
 
 impl Cpu {
     /// Opcode LWC2 - Load Word From Coprocessor (0b110010)
